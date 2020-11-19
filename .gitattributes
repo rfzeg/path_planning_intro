@@ -1,0 +1,60 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto whitespace=trailing-space,space-before-tab,-indent-with-non-tab,tab-in-indent,tabwidth=4
+
+.git*       text export-ignore
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+*.c            text
+*.cpp          text
+*.cxx          text
+*.h            text
+*.hpp          text
+*.hxx          text
+*.txt          text
+
+# Convert to CRLF line endings on checkout (Windows OS)
+*.sln text eol=crlf
+
+# Convert to LF line endings on checkout (Linux & MAC OS)
+*.sh text eol=lf
+*.php text eol=lf
+
+# reST underlines/overlines can look like conflict markers
+*.rst          text conflict-marker-size=80
+
+# Markdown heading markers can look like conflict markers
+*.md           text conflict-marker-size=200
+
+*.cmake         text whitespace=tabwidth=2
+*.cmakein       text whitespace=tabwidth=2
+*.in            text whitespace=tabwidth=2
+CMakeLists.txt  text whitespace=tabwidth=2
+
+# Denote all files that are truly binary and should not be modified
+*.avi       binary
+*.bmp       binary
+*.exr       binary
+*.ico       binary
+*.jpeg      binary
+*.jpg       binary
+*.png       binary
+*.gif       binary
+
+*.a         binary
+*.so        binary
+*.dll       binary
+*.jar       binary
+
+*.pdf       binary
+*.pbxproj   binary
+*.vec       binary
+*.doc       binary
+*.dia       binary
+
+*.xml                      -text whitespace=cr-at-eol
+*.yml                      -text whitespace=cr-at-eol
+.project                   -text whitespace=cr-at-eol merge=union
+.classpath                 -text whitespace=cr-at-eol merge=union
+.cproject                  -text whitespace=cr-at-eol merge=union
+org.eclipse.jdt.core.prefs -text whitespace=cr-at-eol merge=union
