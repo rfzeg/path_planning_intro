@@ -10,7 +10,7 @@
   <!-- base_class_type specifies the name the base class that implements the plugin which is in our case nav_core::BaseGlobalPlanner -->
   <class name="srv_client_plugin/SrvClientPlugin" type="srv_client_plugin::SrvClientPlugin" base_class_type="nav_core::BaseGlobalPlanner">
     <description>
-      A simple global planner that creates a straight line between start and goal position.
+      A global planner plugin that creates service request to get a plan and forwards the response to the move_base global planner module.
     </description>
   </class>
 </library>

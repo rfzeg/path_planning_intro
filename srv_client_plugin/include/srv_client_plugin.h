@@ -10,10 +10,13 @@
 #include <base_local_planner/world_model.h>
 #include <base_local_planner/costmap_model.h>
 
+#include "pp_msgs/PathPlanningPlugin.h"
+
+
 namespace srv_client_plugin{
   /**
    * @class SrvClientPlugin
-   * @brief A global planner that takes in a service request containing a nav_msg/path msg and forwards it to the move_base global planner module
+   * @brief A global planner that creates service request for a plan and forwards the response to the move_base global planner module
    */
   class SrvClientPlugin : public nav_core::BaseGlobalPlanner {
     public:
@@ -45,10 +48,54 @@ namespace srv_client_plugin{
       bool makePlan(const geometry_msgs::PoseStamped& start, 
           const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan);
 
+      /**
+      * @brief Converts a x,y grid cell coordinate value to a linear index value (one-dimensional array index)
+      * @param x Grid cell map x coordinate value
+      * @param y Grid cell map y coordinate value
+      * @return index value corresponding to the location on the one-dimensional array representation
+      */
+      size_t ToIndex(float x, float y);
+
+      /**
+      * @brief Converts a linear index value to a x,y grid cell coordinate value
+      * @param index A linear index value, specifying a cell/pixel in an 1-D array
+      * @param x Grid cell map x coordinate value
+      * @param y Grid cell map y coordinate value
+      */
+      void FromIndex(size_t index, int &x, int &y);
+
+      /**
+      * @brief Convert x,y values in the world frame of reference (in meters) to grid map cell coordinates
+      *        This transformation is derived from the map resolution and map origin
+      * @param x X-Axis value in the world frame of reference (in meters)
+      * @param y Y-Axis value in the world frame of reference (in meters)
+      */
+      void FromPositionToIndex(float &x, float &y);
+
+      /**
+      * @brief Convert x,y grid cell coordinates to world coordinates (in meters).
+      *        This transformation is derived from the map resolution and map origin
+      * @param x Grid cell map x coordinate value
+      * @param y Grid cell map y coordinate value
+      */
+      void FromIndexToPosition(float &x, float &y);
+
     private:
       costmap_2d::Costmap2DROS* costmap_ros_;
       costmap_2d::Costmap2D* costmap_;
       bool initialized_;
+      // the x,y position in grid cell coordinates of the world's coordinate origin
+      float origin_x_;
+      float origin_y_;
+      // the resolution of the map which is expressed in meters per pixel
+      // or the size of each grid cell (pixel) in meters
+      // 0.05 means for example 5 centimers for each cell (pixel)
+      float resolution_;
+      int width_;
+      int height_;
+      int map_size_;
+      // service client declaration
+      ros::ServiceClient makeplan_service_;
   };
-};  
+}  
 #endif
