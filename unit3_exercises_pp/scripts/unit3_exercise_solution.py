@@ -3,6 +3,7 @@
 """
 ROS service server for Dijkstra's algorithm path planning exercise
 Author: Roberto Zegers R.
+Date: Nov 30, 2020
 Usage: roslaunch unit3_exercises_pp unit_3.launch
 """
 
@@ -90,8 +91,29 @@ def make_plan(req):
   return resp
 
 ####### Paste code from exercise 3.5.4. HERE ################
+## Build path by working backwards from target
+def build_path(prev, source, target):
+  path_array = []
+  current_node = target
+  path_array.append(current_node)
 
+  # Continue until reaching the source node
+  while True:
+    parent = prev[current_node]
+    if parent == source:
+      break
+    elif parent == float("inf"):
+      break
+    path_array.append(parent)
+    current_node = parent
 
+  # use extended slicing to reverse the path
+  path_array = path_array[::-1]
+
+  rospy.loginfo('Dijkstra: Done building path')
+  rospy.logdebug(path_array)
+
+  return path_array
 ####### End of code from exercise 3.5.4. ###############
 
 def dijkstra(start_index, goal_index, width, height, costmap):
@@ -112,25 +134,45 @@ def dijkstra(start_index, goal_index, width, height, costmap):
   #    Use the update_visited() function to keep the list sorted in an memory efficient manner
 
   path = []
-
+  distance = [float("inf")] * map_size
+  distance[start_index] = 0
+  previous = [float("inf")] * map_size
+  neighbors = []
+  unvisited = []
+  update_unvisited(distance[start_index], start_index, unvisited)
   ### End of code from exercise 3.5.1. ###
 
   rospy.loginfo('Dijkstra: Done with initialization')
 
   #### Paste code from exercise 3.5.2. HERE ####
   # Main loop: Continue while there are still nodes in the list of unvisited nodes
-
+  while unvisited:
+    # Get a new current_node using the provided 'pick_current_node()' function
+    # If current_node is the goal, exit the search loop
+    current_distance, current_vertex = pick_current_node(unvisited)
+    if current_vertex == goal_index:
+      break
     #### End of code from exercise 3.5.2. ###
 
     #### Enter code from exercise 3.5.3. HERE ###
+    neighbors = find_neighbors(current_vertex, width, map_size, costmap)
 
+    for neighbor in neighbors:
+      # unpack neighbor
+      neighbor_distance = neighbor[1]
+      neighbor_index = neighbor[0]
+
+      if (distance[neighbor_index] > (distance[current_vertex] + neighbor_distance)):
+        # Update the smallest tentative distance for the current neighbor
+        distance[neighbor_index] = distance[current_vertex] + neighbor_distance
+        previous[neighbor_index] = current_vertex
+        # Add the current neighbor to list of unvisited nodes using the update_visited() function
+        update_unvisited(distance[neighbor_index], neighbor_index, unvisited)
     #### End of code from exercise 3.5.3. ####
 
   rospy.loginfo('Dijkstra: Done traversing list of unvisited nodes')
-
-  ## Build path
-  path.append(start_index)
-  path.append(goal_index)
+  ## Build path by working backwards from target
+  path = build_path(previous, start_index, goal_index)
 
   return path
 

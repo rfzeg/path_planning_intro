@@ -57,7 +57,7 @@
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
   <!-- Run the map server to load a pre-made map -->
-  <arg name="map_file" default="$(find unit3_exercises_pp)/maps/map_unit3_20cm.yaml"/>
+  <arg name="map_file" default="$(find unit3_exercises_pp)/maps/final_project_world.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <!-- A static transform odom w.r.t. map (0 0 0) to replace AMCL localization (requires perfect odometry) -->
@@ -75,6 +75,6 @@
   <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
 
   <!-- Start service server that responds with a plan for global path planning -->
-  <node pkg="unit3_exercises_pp" name="dijkstra_exercise" type="unit3_exercise.py" output="screen"/> 
+  <node pkg="unit3_exercises_pp" name="dijkstra_exercise" type="unit3_exercise_solution.py" output="screen"/> 
 
 </launch>
