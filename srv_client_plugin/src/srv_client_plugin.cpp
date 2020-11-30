@@ -1,6 +1,7 @@
 #include <pluginlib/class_list_macros.h>
 #include <srv_client_plugin.h>
 #include <ros/console.h>
+#include <nav_msgs/Path.h>
 
 // register this planner as a BaseGlobalPlanner plugin
 PLUGINLIB_EXPORT_CLASS(srv_client_plugin::SrvClientPlugin, nav_core::BaseGlobalPlanner)
@@ -38,6 +39,8 @@ namespace srv_client_plugin
       makeplan_service_ = private_nh.serviceClient<pp_msgs::PathPlanningPlugin>("make_plan");
       // wait for the service to be advertised and available, blocks until it is.
       makeplan_service_.waitForExistence();
+      // create publisher to display the complete trajectory path in RVIZ
+      plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan", 1);
 
       initialized_ = true;
     }
@@ -109,12 +112,35 @@ namespace srv_client_plugin
         }
 
         plan.push_back(goal);
+
+        // Publish the path for visualisation
+        publishPlan(plan);
+
         return true;
       }
       else
       {
         return false;
       }
+    }
+
+    void SrvClientPlugin::publishPlan(const std::vector<geometry_msgs::PoseStamped> &path)
+    {
+
+      // create a message
+      nav_msgs::Path gui_path;
+      gui_path.poses.resize(path.size());
+
+      gui_path.header.frame_id = "map";
+      gui_path.header.stamp = ros::Time::now();
+
+      // Extract the plan in world coordinates
+      for (unsigned int i = 0; i < path.size(); i++)
+      {
+        gui_path.poses[i] = path[i];
+      }
+
+      plan_pub_.publish(gui_path);
     }
 
     size_t SrvClientPlugin::ToIndex(float x, float y)

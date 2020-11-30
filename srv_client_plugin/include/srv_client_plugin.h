@@ -96,6 +96,12 @@ namespace srv_client_plugin{
       int map_size_;
       // service client declaration
       ros::ServiceClient makeplan_service_;
+       /**
+       * @brief Publishes the global plan to display it's entire lenght in RVIZ
+       * @param path The plan as filled by the planner
+       */
+      void publishPlan(const std::vector<geometry_msgs::PoseStamped> &path);
+      ros::Publisher plan_pub_;
   };
 }  
 #endif
