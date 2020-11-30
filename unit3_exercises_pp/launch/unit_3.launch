@@ -2,6 +2,8 @@
 <!-- High level launch file for Unit 3 exercises  -->
 <launch>
 
+<env name="GAZEBO_MODEL_PATH" value="$(find unit3_exercises_pp)/worlds/" />
+
 <arg name="x_pos" default="0.0"/>
 <arg name="y_pos" default="0.0"/>
 <arg name="z_pos" default="0.0"/>
@@ -9,8 +11,8 @@
 <arg name="use_gui" default="true"/>
 
 <!-- Set name of the world to be launched, configure as required -->
-<arg name="world_name" default="worlds/empty.world"/>
-<!-- <arg name="world_name" default="$(find unit3_exercises_pp)/worlds/unit3_exercise.world"/> -->
+<!-- <arg name="world_name" default="worlds/empty.world"/> -->
+<arg name="world_name" default="$(find unit3_exercises_pp)/worlds/unit3_exercise.world"/>
 
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg world_name)"/> 
@@ -55,7 +57,7 @@
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
   <!-- Run the map server to load a pre-made map -->
-  <arg name="map_file" default="$(find unit3_exercises_pp)/maps/empty_world.yaml"/>
+  <arg name="map_file" default="$(find unit3_exercises_pp)/maps/map_unit3_20cm.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <!-- A static transform odom w.r.t. map (0 0 0) to replace AMCL localization (requires perfect odometry) -->
