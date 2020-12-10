@@ -1,0 +1,1626 @@
+<sdf version='1.6'>
+  <world name='tunnel_no_textures'>
+    <scene>
+      <shadows>0</shadows>
+      <ambient>0.8 0.8 0.8 1</ambient>
+      <background>1 1 1 1</background>
+      <grid>0</grid>
+      <origin_visual>0</origin_visual>
+    </scene>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>500</real_time_update_rate>
+    </physics>
+    <gui fullscreen='0'>
+      <camera name='world_camera'>
+        <pose frame=''>31.8138 22.9077 11.374 0 0.407642 -2.57099</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <audio>
+      <device>default</device>
+    </audio>
+    <wind/>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>50 50</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay>
+          <linear>0</linear>
+          <angular>0</angular>
+        </velocity_decay>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+        <enable_wind>0</enable_wind>
+      </link>
+    </model>
+
+     <model name='asphalt'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <pose frame=''>0 0 0.001 0 -0 0</pose>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>40 30</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Black</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+    </model>
+
+ <model name='tunnel_no_textures'>
+      <static>1</static>
+      <link name='upright_0'>
+      <pose frame=''>-15 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='upright_1'>
+      <pose frame=''>-10 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='upright_2'>
+      <pose frame=''>-5 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='upright_3'>
+      <pose frame=''>0 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='upright_4'>
+        <pose frame=''>5 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='upright_5'>
+        <pose frame=''>10 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='upright_6'>
+      <pose frame=''>15 13.85 2 0 -0 0</pose>
+        <collision name='upright_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 4</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='wall'>
+        <pose frame=''>0 6.1 1.25 0 0 0</pose>
+        <collision name='wall_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>31 0.15 2.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual_wall_01'>
+          <geometry>
+            <box>
+              <size>31 0.15 2.5</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='roof'>
+        <pose frame=''>0 6.1 0 0 -0 0</pose>
+        <collision name='collision_roof_0'>
+          <pose frame=''>0 4.025 3.32 0.195 -0 0</pose>
+          <geometry>
+            <box>
+              <size>31 8.4 0.01</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual_roof_0'>
+          <pose frame=''>0 4.025 3.32 0.195 -0 0</pose>
+          <geometry>
+            <box>
+              <size>31 8.4 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Red</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_1'>
+      <pose frame=''>12.5 13.85 0.3 0 -0 0</pose>
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_2'>
+      <pose frame=''>7.5 13.85 0.3 0 -0 0</pose>
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_3'>
+      <pose frame=''>2.5 13.85 0.3 0 -0 0</pose>
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_4'>
+      <pose frame=''>-2.5 13.85 0.3 0 -0 0</pose>
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_5'>
+      <pose frame=''>-7.5 13.85 0.3 0 -0 0</pose>
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_6'>
+      <pose frame=''>-12.5 13.85 0.3 0 -0 0</pose>
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      
+      <link name='concrete_barrier_m_1'>
+      <pose frame=''>14.689 7.315 0.3 0 -0 2.246</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_m_2'>
+      <pose frame=''>12.94 9.5 0.3 0 -0 2.246</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='round_concrete_base_1'>
+      <pose frame=''>4 9.95 0.3 0 -0 0</pose>
+        <collision name='round_concrete_base_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.8</radius>
+              <length>0.6</length>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <cylinder>
+              <radius>0.8</radius>
+              <length>0.6</length>
+            </cylinder>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_m_3'>
+      <pose frame=''>4 7.75 0.3 0 -0 1.57675</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='round_concrete_base_2'>
+      <pose frame=''>0 9.95 0.3 0 -0 0</pose>
+        <collision name='round_concrete_base_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.8</radius>
+              <length>0.6</length>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <cylinder>
+              <radius>0.8</radius>
+              <length>0.6</length>
+            </cylinder>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <link name='concrete_barrier_m_4'>
+      <pose frame=''>0 12.2 0.3 0 -0 1.57675</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_m_5'>
+      <pose frame=''>-7.54 12.325 0.3 0 -0 1.57675</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_l_7'>
+        <pose frame=''>-9.91 11 0.3 0 -0 0</pose> 
+        <collision name='concrete_barrier_l_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_m_6'>
+      <pose frame=''>-12.3 12.325 0.3 0 -0 1.57675</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_m_7'>
+      <pose frame=''>-2.95 7.25 0.3 0 0 -0.7854</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+      <link name='concrete_barrier_m_8'>
+      <pose frame=''>-5.05 7.25 0.3 0 -0 0.7854</pose>
+        <collision name='concrete_barrier_m_01'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+
+   
+      <link name='concrete_barrier_l_0'>
+       <pose>17.5 13.85 0.3 0 0 0</pose>
+        <collision name='concrete_barrier_l_00'>
+          <pose frame=''>-0 0 0.0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+     <link name='concrete_barrier_l_8'>
+       <pose>-17.5 13.85 0.3 0 0 0</pose>
+        <collision name='concrete_barrier_l_08'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+
+    <!-- side -->
+    <link name='concrete_barrier_xl_1'>
+       <pose>19.9 8.92 0.3 0 0 1.5708</pose>
+        <collision name='concrete_barrier_xl_01'>
+          <pose frame=''>-0 0 0.0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+     <link name='concrete_barrier_xl_2'>
+       <pose>19.9 -1.09 0.3 0 0 1.5708</pose>
+        <collision name='concrete_barrier_xl_02'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <link name='concrete_barrier_l_10'>
+       <pose>19.9 -8.4 0.3 0 0 1.5708</pose>
+        <collision name='concrete_barrier_l_10'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <link name='concrete_barrier_m_9'>
+      <pose>19.9 -12.12 0.3 0 0 1.5708</pose>se>
+        <collision name='concrete_barrier_m_09'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <!-- side -->
+    <link name='concrete_barrier_xl_3'>
+      <pose>-19.9 8.92 0.3 0 0 1.5708</pose>
+        <collision name='concrete_barrier_xl_03'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+     <link name='concrete_barrier_xl_4'>
+       <pose>-19.9 -1.09 0.3 0 0 1.5708</pose>
+        <collision name='concrete_barrier_xl_04'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <link name='concrete_barrier_l_11'>
+       <pose>-19.9 -8.4 0.3 0 0 1.5708</pose>
+        <collision name='concrete_barrier_l_11'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>4.6 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <link name='concrete_barrier_m_10'>
+      <pose>-19.9 -12.12 0.3 0 0 1.5708</pose>se>
+        <collision name='concrete_barrier_m_10'>
+          <pose frame=''>-0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>2.8 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <!-- side -->
+     <link name='concrete_barrier_xl_5'>
+       <pose>15.02 -13.6 0.3 0 0 0</pose>
+        <collision name='concrete_barrier_xl_05'>
+          <pose frame=''>-0 0 0.0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+     <link name='concrete_barrier_xl_6'>
+       <pose>5.01 -13.6 0.3 0 0 0</pose>
+        <collision name='concrete_barrier_xl_06'>
+          <pose frame=''>-0 0 0.0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+       
+
+    <link name='concrete_barrier_xl_7'>
+       <pose>-5.01 -13.6 0.3 0 0 0</pose>
+        <collision name='concrete_barrier_xl_07'>
+          <pose frame=''>-0 0 0.0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+
+    <link name='concrete_barrier_xl_8'>
+       <pose>-15.02 -13.6 0.3 0 0 0</pose>
+        <collision name='concrete_barrier_xl_08'>
+          <pose frame=''>-0 0 0.0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>10 0.15 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      
+    </model>
+  </world>
+</sdf>
