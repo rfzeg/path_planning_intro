@@ -65,26 +65,27 @@ namespace srv_client_plugin{
       void FromIndex(size_t index, int &x, int &y);
 
       /**
-      * @brief Convert x,y values in the world frame of reference (in meters) to grid map cell coordinates
-      *        This transformation is derived from the map resolution and map origin
+      * @brief Converts x,y values in the world frame (in meters) into x,y grid map coordinates
+      *        This transformation is derived from the map resolution and adjusts 
+      *        w.r.t the location of the map origin
       * @param x X-Axis value in the world frame of reference (in meters)
       * @param y Y-Axis value in the world frame of reference (in meters)
       */
-      void FromPositionToIndex(float &x, float &y);
+      void FromWorldToGrid(float &x, float &y);
 
       /**
-      * @brief Convert x,y grid cell coordinates to world coordinates (in meters).
-      *        This transformation is derived from the map resolution and map origin
+      * @brief Converts x,y grid cell coordinates to world coordinates (in meters)
+      *        This transformation is derived from the map resolution and adjusts
+      *        w.r.t the location of the map origin
       * @param x Grid cell map x coordinate value
       * @param y Grid cell map y coordinate value
       */
-      void FromIndexToPosition(float &x, float &y);
-
+      void FromGridToWorld(float &x, float &y); 
     private:
       costmap_2d::Costmap2DROS* costmap_ros_;
       costmap_2d::Costmap2D* costmap_;
       bool initialized_;
-      // the x,y position in grid cell coordinates of the world's coordinate origin
+      // x,y position (in meters) of grid map origin w.r.t world's coordinate origin
       float origin_x_;
       float origin_y_;
       // the resolution of the map which is expressed in meters per pixel

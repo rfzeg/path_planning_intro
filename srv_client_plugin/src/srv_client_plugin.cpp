@@ -46,11 +46,12 @@ namespace srv_client_plugin
     }
   }
 
-    // generate a dummy global plan containing only start and goal waypoints
+    // fill plan request, call plan service, process plan response
     bool SrvClientPlugin::makePlan(const geometry_msgs::PoseStamped &start, const geometry_msgs::PoseStamped &goal, std::vector<geometry_msgs::PoseStamped> &plan)
     {
       plan.clear();
 
+      // Fill costmap (costmap is a 1-D array map representation)
       std::vector<int> costmap(map_size_);
 
       for (size_t idx = 0; idx < map_size_; ++idx)
@@ -61,7 +62,7 @@ namespace srv_client_plugin
         costmap.at(idx) = static_cast<int>(costmap_->getCost(x, y));
       }
 
-      // Get the index values of the x and y coordinates
+      // get the world coordinates of the start and goal position
       float start_x = start.pose.position.x;
       float start_y = start.pose.position.y;
       FromPositionToIndex(start_x, start_y);
@@ -69,7 +70,7 @@ namespace srv_client_plugin
 
       float goal_x = goal.pose.position.x;
       float goal_y = goal.pose.position.y;
-      FromPositionToIndex(goal_x, goal_y);
+      FromWorldToGrid(goal_x, goal_y);
       size_t goal_index = ToIndex(goal_x, goal_y);
 
       pp_msgs::PathPlanningPlugin makeplan;
@@ -79,16 +80,19 @@ namespace srv_client_plugin
       makeplan.request.width = width_;
       makeplan.request.height = height_;
 
-      // call the service
+      // call path planning service
       makeplan_service_.call(makeplan);
 
       std::vector<int> index_plan = makeplan.response.plan;
 
       ROS_DEBUG("Number of points: %d", unsigned(index_plan.size()));
 
+      /* Process plan response */
       if (index_plan.size())
       {
+        // insert start node into plan response
         index_plan.insert(index_plan.begin(), start_index);
+        // insert goal node into plan response
         index_plan.push_back(goal_index);
 
         for (int p : index_plan)
@@ -98,7 +102,7 @@ namespace srv_client_plugin
           float x_path = static_cast<float>(x);
           float y_path = static_cast<float>(y);
 
-          FromIndexToPosition(x_path, y_path);
+          FromGridToWorld(x_path, y_path);
           geometry_msgs::PoseStamped position;
           position.header.frame_id = start.header.frame_id;
           position.pose.position.x = x_path;
@@ -118,8 +122,9 @@ namespace srv_client_plugin
 
         return true;
       }
-      else
+    else
       {
+        // no plan found
         return false;
       }
     }
@@ -154,13 +159,13 @@ namespace srv_client_plugin
       y = std::floor(index / width_);
     }
 
-    void SrvClientPlugin::FromPositionToIndex(float &x, float &y)
+    void SrvClientPlugin::FromWorldToGrid(float &x, float &y)
     {
       x = static_cast<size_t>((x - origin_x_) / resolution_);
       y = static_cast<size_t>((y - origin_y_) / resolution_);
     }
 
-    void SrvClientPlugin::FromIndexToPosition(float &x, float &y)
+    void SrvClientPlugin::FromGridToWorld(float &x, float &y)
     {
       x = x * resolution_ + origin_x_;
       y = y * resolution_ + origin_y_;
