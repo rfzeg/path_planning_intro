@@ -75,12 +75,22 @@ namespace srv_client_plugin{
 
       /**
       * @brief Converts x,y grid cell coordinates to world coordinates (in meters)
-      *        This transformation is derived from the map resolution and adjusts
-      *        w.r.t the location of the map origin
+      *        This transformation is derived from the map resolution, adjusts
+      *        w.r.t the location of the map origin and can include an offset
+      *        to place the world coordinate at the center point of a grid cell
       * @param x Grid cell map x coordinate value
       * @param y Grid cell map y coordinate value
       */
       void FromGridToWorld(float &x, float &y); 
+
+      /**
+      * @brief Checks if world coordinates are inside grid map bounds
+      * @param x X-Axis value in the world frame of reference (in meters)
+      * @param y Y-Axis value in the world frame of reference (in meters)
+      * @return true if a index is in map bounds, otherwise false
+      */
+      bool InGridMapBounds(float &x, float &y);
+
     private:
       costmap_2d::Costmap2DROS* costmap_ros_;
       costmap_2d::Costmap2D* costmap_;
@@ -92,6 +102,10 @@ namespace srv_client_plugin{
       // or the size of each grid cell (pixel) in meters
       // 0.05 means for example 5 centimers for each cell (pixel)
       float resolution_;
+      // by default path is created along the corners/edges of grid cells
+      bool path_at_node_center = false;
+      float node_center_offset_ = 0;
+      // map dimentions in number of grid cells
       int width_;
       int height_;
       int map_size_;

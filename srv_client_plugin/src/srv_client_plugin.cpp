@@ -42,6 +42,14 @@ namespace srv_client_plugin
       // create publisher to display the complete trajectory path in RVIZ
       plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan", 1);
 
+      // place path waypoints at the center of each grid cell (vs. at the corners of grid cells)
+      path_at_node_center = true;
+      if (path_at_node_center)
+      {
+        // shift all of the coordinates by half a grid cell
+        node_center_offset_ = resolution_ / 2;
+      }
+
       initialized_ = true;
     }
   }
@@ -62,16 +70,32 @@ namespace srv_client_plugin
         costmap.at(idx) = static_cast<int>(costmap_->getCost(x, y));
       }
 
-      // get the world coordinates of the start and goal position
       float start_x = start.pose.position.x;
       float start_y = start.pose.position.y;
-      FromPositionToIndex(start_x, start_y);
-      size_t start_index = ToIndex(start_x, start_y);
-
       float goal_x = goal.pose.position.x;
       float goal_y = goal.pose.position.y;
-      FromWorldToGrid(goal_x, goal_y);
-      size_t goal_index = ToIndex(goal_x, goal_y);
+
+      size_t start_index = 0;
+      size_t goal_index = 0;
+
+      // check if start/goal world coordinates are inside  grid map bounds
+      if (InGridMapBounds(start_x, start_y) && InGridMapBounds(goal_x, goal_y))
+      {
+        // convert x,y in world coordinates/meters) to x,y in grid map cell coordinates
+        FromWorldToGrid(start_x, start_y);
+        FromWorldToGrid(goal_x, goal_y);
+
+        // convert 2d representation into flat array index representation
+        start_index = ToIndex(start_x, start_y);
+        goal_index = ToIndex(goal_x, goal_y);
+      }
+      else
+      {
+        ROS_WARN("Start or goal position outside of the map's boundaries");
+        return false;
+      }
+
+      // To-Do: check that a start and goal are not obstacles
 
       pp_msgs::PathPlanningPlugin makeplan;
       makeplan.request.costmap_ros = costmap;
@@ -167,8 +191,15 @@ namespace srv_client_plugin
 
     void SrvClientPlugin::FromGridToWorld(float &x, float &y)
     {
-      x = x * resolution_ + origin_x_;
-      y = y * resolution_ + origin_y_;
+      x = x * resolution_ + origin_x_ + node_center_offset_;
+      y = y * resolution_ + origin_y_ + node_center_offset_;
+    }
+
+    bool SrvClientPlugin::InGridMapBounds(float &x, float &y)
+    {
+      if (x < origin_x_ || y < origin_y_ || x > origin_x_ + (width_ * resolution_) || y > origin_y_ + (height_ * resolution_))
+        return false;
+      return true;
     }
 
   }; // namespace srv_client_plugin
