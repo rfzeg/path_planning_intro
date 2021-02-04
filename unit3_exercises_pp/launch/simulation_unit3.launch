@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- High level launch file for Unit 3 exercises  -->
+<!-- High level launch file for Unit 3 Simulation  -->
 <launch>
 
 <env name="GAZEBO_MODEL_PATH" value="$(find unit3_exercises_pp)/worlds/" />
 
-<arg name="x_pos" default="0.1"/>
-<arg name="y_pos" default="0.1"/>
-<arg name="z_pos" default="0.0"/>
-<arg name="yaw" default="0.0"/>
 <arg name="use_gui" default="true"/>
 
 <!-- Set name of the world to be launched, configure as required -->
@@ -23,23 +19,23 @@
     <arg name="debug" value="false"/>
 </include>
 
-<!-- Configure differential drive controller Gazebo plugin -->
-<arg name="diff_drive_publishTf" default="true" />
-<arg name="diff_drive_publishOdomTF" default="true" />
-<arg name="pkg_containing_meshes" default="kobuki_description" />
-<!--
-  <arg name="pkg_containing_meshes" default="unit3_exercises_pp/urdf" />
--->
+<arg name="x_pos" default="0.1"/>
+<arg name="y_pos" default="0.1"/>
+<arg name="z_pos" default="0.0"/>
+<arg name="yaw" default="0.0"/>
 
-<!-- Send URDF to parameter server -->
-<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find unit3_exercises_pp)/urdf/turtlebot2.xacro'
-                                         diff_drive_publishTf:=$(arg diff_drive_publishTf)
-                                         diff_drive_publishOdomTF:=$(arg diff_drive_publishOdomTF)
-                                         pkg_containing_meshes:=$(arg pkg_containing_meshes)" />
+<!-- config Turtlebot -->
+<arg name="base" value="kobuki"/> <!-- create, roomba -->
+<arg name="stacks" value="hexagons"/> <!-- circles, hexagons -->
+<arg name="3d_sensor" value="kinect"/> <!-- kinect, asus_xtion_pro -->
+
+
+<arg name="urdf_file" default="$(find xacro)/xacro '$(find turtlebot_description)/robots/$(arg base)_$(arg stacks)_$(arg 3d_sensor).urdf.xacro'" />
+<param name="robot_description" command="$(arg urdf_file)" />
 
 <!-- Spawn a robot into Gazebo -->
 <!-- Requires: urdf 'robot_description' in parameter server -->
-<arg name= "robot_name" default= "robot_base"/>
+<arg name= "robot_name" default= "mobile_base"/>
 
 <node name="urdf_robot_model_spawner" pkg="gazebo_ros" type="spawn_model"
   args="-param robot_description
@@ -51,9 +47,9 @@
   -model $(arg robot_name)"
   respawn="false" output="screen"/>
 
-  <!-- Broadcast TF values for all fixed elements in the URDF description tree such as the IMU -->
+  <!-- Broadcast TF values for all fixed elements in the URDF description tree such as structural plates, bars -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
-  <!-- Broadcast TF values for all moving elements in the URDF description tree such as wheels -->
+  <!-- Broadcast TF values for all moving elements in the URDF description tree such as wheels, joints -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
   <!-- Determine whether to run a static transform publisher or not -->

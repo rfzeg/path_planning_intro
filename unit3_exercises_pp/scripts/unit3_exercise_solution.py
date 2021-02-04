@@ -3,66 +3,50 @@
 """
 ROS service server for Dijkstra's algorithm path planning exercise
 Author: Roberto Zegers R.
+Copyright: Copyright (c) 2020, Roberto Zegers R.
+License License BSD-3-Clause
 Date: Nov 30, 2020
-Usage: roslaunch unit3_exercises_pp unit_3.launch
+Usage: roslaunch unit3_exercises_pp unit3_solution.launch
 """
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
-import heapq
 import math
 
-rospy.init_node('path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+rospy.init_node('dijkstra_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
-def pick_current_node(queue):
-   # The order that we iterate over the nodes is controlled by a priority queue
-   # Pop and return the smallest item from the heap, maintaining the heap invariant
-  return heapq.heappop(queue)
-
-def update_unvisited(distance_value, n_index, unvisited):
-  # Push 'entry' onto the heap, maintaining the heap invariant
-  entry = [distance_value, n_index]
-  heapq.heappush(unvisited, entry)
-
-def find_neighbors(index, width, map_size, costmap):
-
-  neighbors = []
+def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
+  """
+  Identifies neighbor nodes in free space and inside the map boundaries
+  Returns a main list with neighbour nodes as [index, step_cost] pairs (sublists)
+  orthogonal_movement_cost: the cost of moving to an adjacent grid cell, the size/edge of one grid cell
+  """
+  # temporary list
   check = []
-  # upper
+  # output list
+  neighbors = []
+
+  # check that upper neighbour is not past the map's boundaries
   if index - width > 0:
-    check.append([index - width, 1])
+    # append [index, step_cost] pair
+    check.append([index - width, orthogonal_movement_cost])
 
-  # left
+  # check that left neighbour is not past the map's boundaries
   if (index - 1) % width > 0:
-    check.append([index - 1, 1])
+    check.append([index - 1, orthogonal_movement_cost])
 
-  # upper left
-  if index - width - 1 > 0 and (index - width - 1) % width > 0:
-    check.append([index - width - 1, 1.4])
-
-  # upper right
-  if index - width + 1 > 0 and (index - width + 1) % width != (width - 1) :
-    check.append([index - width + 1, 1.4])
-
-  # right
+  # check that right neighbour is not past the map's boundaries
   if (index + 1) % width != (width + 1):
-    check.append([index + 1, 1])
+    check.append([index + 1, orthogonal_movement_cost])
 
-  # lower left
-  if (index + width - 1) < map_size and (index + width - 1) % width != 0:
-    check.append([index + width - 1, 1.4])
-
-  # lower
-  if (index + width) <= map_size:
-    check.append([index + width, 1])
-
-  # lower right
-  if (index + width + 1) <= map_size and (index + width + 1) % width != (width - 1):
-    check.append([index + width + 1, 1.4])
-
+  # check that lower neighbour is not past the map's boundaries
+  if (index + width) <= (height * width):
+    check.append([index + width, orthogonal_movement_cost])
 
   for element in check:
+     # Check if neighbour node is an obstacle
     if costmap[element[0]] == 0:
+      # appends [index, step_cost] sublist to output list
       neighbors.append(element)
 
   return neighbors
@@ -71,112 +55,144 @@ def find_neighbors(index, width, map_size, costmap):
 def make_plan(req):
   ''' 
   Callback function used by the service server to process
-  requests from clients. It returns a PathPlanningPluginResponse
+  requests from clients. It returns a msg of type PathPlanningPluginResponse
   '''
-  # This is the data you get from the request
-  # The costmap is a 1-D array version of the original costmap image
+  # costmap as 1-D array representation
   costmap = req.costmap_ros
+  # number of columns in the occupancy grid
   width = req.width
+  # number of rows in the occupancy grid
   height = req.height
   start_index = req.start
   goal_index = req.goal
+  # side of each grid map square in meters
+  resolution = 0.2
+  # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
+  origin = [-7.4, -7.4, 0]
 
-  # Calculate the shortes path using dijkstra
-  path = dijkstra(start_index, goal_index, width, height, costmap)
+  # time statistics
+  start_time = rospy.Time.now()
+
+  # Calculate the shortes path using Dijkstra
+  path = dijkstra(start_index, goal_index, width, height, costmap, resolution, origin)
+
+  if not path:
+    rospy.logwarn("No path returned by Dijkstra's shortes path algorithm")
+    path = []
+  else:
+    # print time statistics
+    execution_time = rospy.Time.now() - start_time
+    rospy.loginfo('Total execution time: %s seconds', str(execution_time.to_sec()))
+    rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
 
   # make a response object
   resp = PathPlanningPluginResponse()
   resp.plan = path
-  rospy.loginfo('Dijkstra: Path send to navigation stack')
   return resp
 
-####### Paste code from exercise 3.5.4. HERE ################
-## Build path by working backwards from target
-def build_path(prev, source, target):
-  path_array = []
-  current_node = target
-  path_array.append(current_node)
-
-  # Continue until reaching the source node
-  while True:
-    parent = prev[current_node]
-    if parent == source:
-      break
-    elif parent == float("inf"):
-      break
-    path_array.append(parent)
-    current_node = parent
-
-  # use extended slicing to reverse the path
-  path_array = path_array[::-1]
-
-  rospy.loginfo('Dijkstra: Done building path')
-  rospy.logdebug(path_array)
-
-  return path_array
-####### End of code from exercise 3.5.4. ###############
-
-def dijkstra(start_index, goal_index, width, height, costmap):
+def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin):
   ''' 
-  Implementation of Dijkstra's algorithm
+  Performs Dijkstra's shortes path algorithm search on a costmap with a given start and goal node
   '''
-  map_size = height * width
 
-  ### Paste code from exercise 3.5.1. HERE ###
-  # 1. Add a list called 'distance' to keep track of the total cost from the start node to each node
-  #    use infinity as a default distance for all nodes
-  # 2. Set distance of start index to zero
-  # 3. Add a list called 'previous' to keep track of each nodes's parent node, required to construct the path
-  #    use infinity as a default parent node for all nodes
-  # 4. Add an empty list called 'neighbors' to contain the indices of all grid cells reachable from current node
-  # 5. Add an empty list called 'unvisited' to keep track of the nodes discovered but not yet visited
-  # 6. Add the start node to the list of unvisited nodes
-  #    Use the update_visited() function to keep the list sorted in an memory efficient manner
+  # create an open_list
+  open_list = []
+  open_list.append([start_index, 0])
 
-  path = []
-  distance = [float("inf")] * map_size
-  distance[start_index] = 0
-  previous = [float("inf")] * map_size
-  neighbors = []
-  unvisited = []
-  update_unvisited(distance[start_index], start_index, unvisited)
-  ### End of code from exercise 3.5.1. ###
+  # set to hold already processed nodes
+  closed_nodes = set()
 
+  # dict for mapping children to parent
+  parents = dict()
+
+  # dict for mapping g costs (travel costs) to nodes
+  g_costs = dict()
+  g_costs[start_index] = 0
+
+  shortest_path = []
+
+  path_found = False
   rospy.loginfo('Dijkstra: Done with initialization')
 
-  #### Paste code from exercise 3.5.2. HERE ####
-  # Main loop: Continue while there are still nodes in the list of unvisited nodes
-  while unvisited:
-    # Get a new current_node using the provided 'pick_current_node()' function
+  # Main loop, executes while there are still nodes in open_list
+  while open_list:
+
+    # sort open_list according to the second element of each sublist
+    open_list.sort(key = lambda x: x[1]) 
+    # extract the first element (the one with the shortes travel cost)
+    current_node = open_list.pop(0)[0]
+
+    # Close current_node to prevent from visting it again
+    closed_nodes.add(current_node)
+
     # If current_node is the goal, exit the search loop
-    current_distance, current_vertex = pick_current_node(unvisited)
-    if current_vertex == goal_index:
+    if current_node == goal_index:
+      path_found = True
       break
-    #### End of code from exercise 3.5.2. ###
 
-    #### Enter code from exercise 3.5.3. HERE ###
-    neighbors = find_neighbors(current_vertex, width, map_size, costmap)
+    # Get neighbors
+    neighbors = find_neighbors(current_node, width, height, costmap, resolution)
 
-    for neighbor in neighbors:
-      # unpack neighbor
-      neighbor_distance = neighbor[1]
-      neighbor_index = neighbor[0]
+    # Loop neighbors
+    for neighbor_index, step_cost in neighbors:
 
-      if (distance[neighbor_index] > (distance[current_vertex] + neighbor_distance)):
-        # Update the smallest tentative distance for the current neighbor
-        distance[neighbor_index] = distance[current_vertex] + neighbor_distance
-        previous[neighbor_index] = current_vertex
-        # Add the current neighbor to list of unvisited nodes using the update_visited() function
-        update_unvisited(distance[neighbor_index], neighbor_index, unvisited)
-    #### End of code from exercise 3.5.3. ####
+      # Check if the neighbor has already been visited
+      if neighbor_index in closed_nodes:
+        continue
 
-  rospy.loginfo('Dijkstra: Done traversing list of unvisited nodes')
+      # calculate g_cost of neighbour if movement passes through current_node
+      g_cost = g_costs[current_node] + step_cost
+
+      # Check if the neighbor is in open_list
+      in_open_list = False
+      for idx, element in enumerate(open_list):
+        if element[0] == neighbor_index:
+          in_open_list = True
+          break
+
+      # CASE 1: neighbor already in open_list
+      if in_open_list:
+        if g_cost < g_costs[neighbor_index]:
+          # Update the node's g_cost inside g_costs
+          g_costs[neighbor_index] = g_cost
+          parents[neighbor_index] = current_node
+          # Update the node's g_cost inside open_list
+          open_list[idx] = [neighbor_index, g_cost]
+
+      # CASE 2: neighbor not in open_list
+      else:
+        # Set the node's g_cost inside g_costs
+        g_costs[neighbor_index] = g_cost
+        parents[neighbor_index] = current_node
+        # Add neighbor to open_list
+        open_list.append([neighbor_index, g_cost])
+
+  rospy.loginfo('Dijkstra: Done traversing nodes in open_list')
+
+  if not path_found:
+    rospy.logwarn('Dijkstra: No path found!')
+    return shortest_path
+
   ## Build path by working backwards from target
-  path = build_path(previous, start_index, goal_index)
+  if path_found:
+      node = goal_index
+      shortest_path.append(goal_index)
+      while node != start_index:
+          node = parents[node]
+          shortest_path.append(node)
+  # reverse list
+  shortest_path = shortest_path[::-1]
+  rospy.loginfo('Dijkstra: Done reconstructing path')
 
-  return path
+  # print statistics
+  rospy.loginfo('++++++++ Dijkstra execution metrics ++++++++')
+  rospy.loginfo('Total nodes expanded: %s', str(len(closed_nodes)))
+  rospy.loginfo('Nodes in frontier: %s', str(len(open_list)))
+  rospy.loginfo('Unvisited nodes (this includes obstacles): %s', str((height * width)-len(closed_nodes)-len(open_list))) # note: this number includes obstacles
 
-# create a service named 'make_plan', requests are passed to the make_plan callback function
+  return shortest_path
+
+# Creates service 'make_plan', service requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
 
 rospy.spin()

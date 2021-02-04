@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Launch file for Path Planning Course Unit 3 exercises  -->
+<!-- Launch file for Path Planning Course Unit 3 solution  -->
 <!-- Requires simulation w/robot running -->
 <launch>
 
@@ -17,6 +17,6 @@
   <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
 
   <!-- Start service server that responds with a plan for global path planning -->
-  <node pkg="unit3_exercises_pp" name="dijkstra_exercise" type="unit3_exercise.py" output="screen"/> 
+  <node pkg="unit3_exercises_pp" name="dijkstra_exercise" type="unit3_exercise_solution.py" output="screen"/> 
 
 </launch>

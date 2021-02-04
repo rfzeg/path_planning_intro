@@ -3,65 +3,50 @@
 """
 ROS service server for Dijkstra's algorithm path planning exercise
 Author: Roberto Zegers R.
-Usage: roslaunch unit3_exercises_pp unit_3.launch
+Copyright: Copyright (c) 2020, Roberto Zegers R.
+License License BSD-3-Clause
+Date: Nov 30, 2020
+Usage: roslaunch unit3_exercises_pp unit3_exercise.launch
 """
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
-import heapq
 import math
 
-rospy.init_node('path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+rospy.init_node('dijkstra_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
-def pick_current_node(queue):
-   # The order that we iterate over the nodes is controlled by a priority queue
-   # Pop and return the smallest item from the heap, maintaining the heap invariant
-  return heapq.heappop(queue)
-
-def update_unvisited(distance_value, n_index, unvisited):
-  # Push 'entry' onto the heap, maintaining the heap invariant
-  entry = [distance_value, n_index]
-  heapq.heappush(unvisited, entry)
-
-def find_neighbors(index, width, map_size, costmap):
-
-  neighbors = []
+def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
+  """
+  Identifies neighbor nodes in free space and inside the map boundaries
+  Returns a main list with neighbour nodes as [index, step_cost] pairs (sublists)
+  orthogonal_movement_cost: the cost of moving to an adjacent grid cell, the size/edge of one grid cell
+  """
+  # temporary list
   check = []
-  # upper
+  # output list
+  neighbors = []
+
+  # check that upper neighbour is not past the map's boundaries
   if index - width > 0:
-    check.append([index - width, 1])
+    # append [index, step_cost] pair
+    check.append([index - width, orthogonal_movement_cost])
 
-  # left
+  # check that left neighbour is not past the map's boundaries
   if (index - 1) % width > 0:
-    check.append([index - 1, 1])
+    check.append([index - 1, orthogonal_movement_cost])
 
-  # upper left
-  if index - width - 1 > 0 and (index - width - 1) % width > 0:
-    check.append([index - width - 1, 1.4])
-
-  # upper right
-  if index - width + 1 > 0 and (index - width + 1) % width != (width - 1) :
-    check.append([index - width + 1, 1.4])
-
-  # right
+  # check that right neighbour is not past the map's boundaries
   if (index + 1) % width != (width + 1):
-    check.append([index + 1, 1])
+    check.append([index + 1, orthogonal_movement_cost])
 
-  # lower left
-  if (index + width - 1) < map_size and (index + width - 1) % width != 0:
-    check.append([index + width - 1, 1.4])
-
-  # lower
-  if (index + width) <= map_size:
-    check.append([index + width, 1])
-
-  # lower right
-  if (index + width + 1) <= map_size and (index + width + 1) % width != (width - 1):
-    check.append([index + width + 1, 1.4])
-
+  # check that lower neighbour is not past the map's boundaries
+  if (index + width) <= (height * width):
+    check.append([index + width, orthogonal_movement_cost])
 
   for element in check:
+     # Check if neighbour node is an obstacle
     if costmap[element[0]] == 0:
+      # appends [index, step_cost] sublist to output list
       neighbors.append(element)
 
   return neighbors
@@ -70,71 +55,53 @@ def find_neighbors(index, width, map_size, costmap):
 def make_plan(req):
   ''' 
   Callback function used by the service server to process
-  requests from clients. It returns a PathPlanningPluginResponse
+  requests from clients. It returns a msg of type PathPlanningPluginResponse
   '''
-  # This is the data you get from the request
-  # The costmap is a 1-D array version of the original costmap image
+  # costmap as 1-D array representation
   costmap = req.costmap_ros
+  # number of columns in the occupancy grid
   width = req.width
+  # number of rows in the occupancy grid
   height = req.height
   start_index = req.start
   goal_index = req.goal
+  # side of each grid map square in meters
+  resolution = 0.2
+  # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
+  origin = [-7.4, -7.4, 0]
 
-  # Calculate the shortes path using dijkstra
-  path = dijkstra(start_index, goal_index, width, height, costmap)
+  # time statistics
+  start_time = rospy.Time.now()
+
+  # calculate the shortes path using Dijkstra
+  path = dijkstra(start_index, goal_index, width, height, costmap, resolution, origin)
+
+  if not path:
+    rospy.logwarn("No path returned by Dijkstra's shortes path algorithm")
+    path = []
+  else:
+    # print time statistics
+    execution_time = rospy.Time.now() - start_time
+    rospy.loginfo('Total execution time: %s seconds', str(execution_time.to_sec()))
+    rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
 
   # make a response object
   resp = PathPlanningPluginResponse()
   resp.plan = path
-  rospy.loginfo('Dijkstra: Path send to navigation stack')
   return resp
 
-####### Paste code from exercise 3.5.4. HERE ################
-
-
-####### End of code from exercise 3.5.4. ###############
-
-def dijkstra(start_index, goal_index, width, height, costmap):
+def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin):
   ''' 
-  Implementation of Dijkstra's algorithm
+  Performs Dijkstra's shortes path algorithm search on a costmap with a given start and goal node
   '''
-  map_size = height * width
 
-  ### Paste code from exercise 3.5.1. HERE ###
-  # 1. Add a list called 'distance' to keep track of the total cost from the start node to each node
-  #    use infinity as a default distance for all nodes
-  # 2. Set distance of start index to zero
-  # 3. Add a list called 'previous' to keep track of each nodes's parent node, required to construct the path
-  #    use infinity as a default parent node for all nodes
-  # 4. Add an empty list called 'neighbors' to contain the indices of all grid cells reachable from current node
-  # 5. Add an empty list called 'unvisited' to keep track of the nodes discovered but not yet visited
-  # 6. Add the start node to the list of unvisited nodes
-  #    Use the update_visited() function to keep the list sorted in an memory efficient manner
+  #### To-do: complete all exercises below ####
 
-  path = []
+    
+    
+  pass
 
-  ### End of code from exercise 3.5.1. ###
-
-  rospy.loginfo('Dijkstra: Done with initialization')
-
-  #### Paste code from exercise 3.5.2. HERE ####
-  # Main loop: Continue while there are still nodes in the list of unvisited nodes
-
-    #### End of code from exercise 3.5.2. ###
-
-    #### Enter code from exercise 3.5.3. HERE ###
-
-    #### End of code from exercise 3.5.3. ####
-
-  rospy.loginfo('Dijkstra: Done traversing list of unvisited nodes')
-
-  ## Build path
-  path.append(start_index)
-  path.append(goal_index)
-
-  return path
-
-# create a service named 'make_plan', requests are passed to the make_plan callback function
+# Creates service 'make_plan', service requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
 
 rospy.spin()
