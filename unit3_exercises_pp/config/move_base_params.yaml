@@ -4,6 +4,10 @@
 #
 shutdown_costmaps: false
 
+# How many times to allow for planning retries before executing recovery behaviors. Default: -1.0 (infinite retries)
+max_planning_retries: 0
+recovery_behavior_enabled: false
+
 # controller_frequency defines how frequently the local plan is updated
 controller_frequency: 5.0
 controller_patience: 3.0

@@ -6,7 +6,9 @@ License: BSD-3-Clause
 
 ## Decription
 
-A service client in Python that processes requests of type PathPlanningPlugin and sends back a response.  
+Unit 3 exercises.  
+Includes a ROS service client in Python that processes requests of type PathPlanningPlugin and sends back a response.  
+
 
 
 

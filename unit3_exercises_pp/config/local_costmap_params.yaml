@@ -6,8 +6,10 @@ local_costmap:
    rolling_window: true
    width: 4.0
    height: 4.0
-   resolution: 0.05
+   resolution: 0.1
    transform_tolerance: 0.5
+   inflation_layer: {cost_scaling_factor: 10.0, enabled: true, inflation_radius: 0.0, robot_radius: 0.2}
+   inflation_radius: 0.0 # overrides setting in costmap_common_params.yaml
    plugins:
     - {name: obstacle_layer,      type: "costmap_2d::VoxelLayer"}
     - {name: inflation_layer,     type: "costmap_2d::InflationLayer"}
