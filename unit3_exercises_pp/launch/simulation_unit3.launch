@@ -4,8 +4,8 @@
 
 <env name="GAZEBO_MODEL_PATH" value="$(find unit3_exercises_pp)/worlds/" />
 
-<arg name="x_pos" default="0.0"/>
-<arg name="y_pos" default="0.0"/>
+<arg name="x_pos" default="0.1"/>
+<arg name="y_pos" default="0.1"/>
 <arg name="z_pos" default="0.0"/>
 <arg name="yaw" default="0.0"/>
 <arg name="use_gui" default="true"/>
@@ -56,25 +56,8 @@
   <!-- Broadcast TF values for all moving elements in the URDF description tree such as wheels -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
-  <!-- Run the map server to load a pre-made map -->
-  <arg name="map_file" default="$(find unit3_exercises_pp)/maps/final_project_world.yaml"/>
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
-
-  <!-- A static transform odom w.r.t. map (0 0 0) to replace AMCL localization (requires perfect odometry) -->
   <!-- Determine whether to run a static transform publisher or not -->
   <arg name="static_tf" default="true" />
   <node if="$(arg static_tf)" pkg="tf2_ros" type="static_transform_publisher" name="odom_wrt_map_tf" args="0 0 0 0 0 0 map odom" />
-
-  <!-- MOVE_BASE -->
-  <include file="$(find unit3_exercises_pp)/launch/move_base.launch" />
-
-  <!-- Determine whether to run Rviz or not & set Rviz config file-->
-  <arg name="use_rviz" default="true" />
-  <arg name="rvizconfig" default="$(find unit3_exercises_pp)/rviz/unit3_exercises.rviz"/>
-  <!-- Launching Rviz -->
-  <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
-
-  <!-- Start service server that responds with a plan for global path planning -->
-  <node pkg="unit3_exercises_pp" name="dijkstra_exercise" type="unit3_exercise_solution.py" output="screen"/> 
 
 </launch>
