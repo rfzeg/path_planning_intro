@@ -4,7 +4,7 @@
       <shadows>0</shadows>
       <ambient>0.8 0.8 0.8 1</ambient>
       <background>1 1 1 1</background>
-      <grid>1</grid>
+      <grid>0</grid>
       <origin_visual>1</origin_visual>
     </scene>
     <physics name='default_physics' default='0' type='ode'>

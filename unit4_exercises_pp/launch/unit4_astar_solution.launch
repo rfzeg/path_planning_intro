@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- High level launch file for Unit 4 exercises solution  -->
+<!-- Requires simulation w/robot running -->
+<launch>
+
+  <!-- Run the map server to load a pre-made map -->
+  <arg name="map_file" default="$(find unit4_exercises_pp)/maps/map_unit4_74x74x20cm.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- MOVE_BASE -->
+  <include file="$(find unit4_exercises_pp)/launch/move_base.launch" />
+
+  <!-- Determine whether to run Rviz or not & set Rviz config file-->
+  <arg name="use_rviz" default="true" />
+  <arg name="rvizconfig" default="$(find unit4_exercises_pp)/rviz/unit4_exercises.rviz"/>
+  <!-- Launching Rviz -->
+  <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
+
+  <!-- Start service server that responds with a plan for global path planning -->
+  <node pkg="unit4_exercises_pp" name="a_star_solution" type="unit4_astar_solution.py" output="screen"/> 
+
+</launch>
