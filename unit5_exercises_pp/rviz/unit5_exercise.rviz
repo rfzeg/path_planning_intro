@@ -113,25 +113,10 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        gps_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         gyro_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        laser_sensor_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        mount_asus_xtion_pro_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         plate_bottom_link:
           Alpha: 1
           Show Axes: false
@@ -283,10 +268,10 @@ Visualization Manager:
       Color: 255; 25; 0
       Enabled: true
       Head Length: 0.30000001192092896
-      Head Radius: 0.10000000149011612
+      Head Radius: 0.30000001192092896
       Name: Goal Pose
-      Shaft Length: 0
-      Shaft Radius: 0.05000000074505806
+      Shaft Length: 1
+      Shaft Radius: 0.10000000149011612
       Shape: Arrow
       Topic: /move_base/current_goal
       Unreliable: false
@@ -354,6 +339,14 @@ Visualization Manager:
       Topic: /path
       Unreliable: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /rrt_tree
+      Name: RRT Search Tree
+      Namespaces:
+        Tree: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -381,26 +374,21 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/FrameAligned
+      Angle: 0
+      Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Invert Z Axis: false
-      Lock Camera: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.570796251296997
-      Point towards: arbitrary
-      Position:
-        X: 0
-        Y: 0
-        Z: 21.60000228881836
-      Roll: 0
+      Scale: 18.84663963317871
       Target Frame: <Fixed Frame>
-      Value: FrameAligned (rviz)
-      Yaw: 0
+      Value: TopDownOrtho (rviz)
+      X: 0
+      Y: 0
     Saved: ~
 Window Geometry:
   Displays:
