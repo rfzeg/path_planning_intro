@@ -4,9 +4,9 @@
 ROS service server for Dijkstra's algorithm path planning exercise
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
-License License BSD-3-Clause
+License: BSD-3-Clause
 Date: Nov 30, 2020
-Usage: roslaunch unit3_exercises_pp unit3_exercise.launch
+Usage: roslaunch unit2_pp unit2_solution.launch
 """
 
 import rospy
@@ -73,7 +73,7 @@ def make_plan(req):
   # time statistics
   start_time = rospy.Time.now()
 
-  # calculate the shortes path using Dijkstra
+  # Calculate the shortes path using Dijkstra
   path = dijkstra(start_index, goal_index, width, height, costmap, resolution, origin)
 
   if not path:
@@ -95,11 +95,102 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
   Performs Dijkstra's shortes path algorithm search on a costmap with a given start and goal node
   '''
 
-  #### To-do: complete all exercises below ####
+  # create an open_list
+  open_list = []
+  open_list.append([start_index, 0])
 
-    
-    
-  pass
+  # set to hold already processed nodes
+  closed_nodes = set()
+
+  # dict for mapping children to parent
+  parents = dict()
+
+  # dict for mapping g costs (travel costs) to nodes
+  g_costs = dict()
+  g_costs[start_index] = 0
+
+  shortest_path = []
+
+  path_found = False
+  rospy.loginfo('Dijkstra: Done with initialization')
+
+  # Main loop, executes while there are still nodes in open_list
+  while open_list:
+
+    # sort open_list according to the second element of each sublist
+    open_list.sort(key = lambda x: x[1]) 
+    # extract the first element (the one with the shortes travel cost)
+    current_node = open_list.pop(0)[0]
+
+    # Close current_node to prevent from visting it again
+    closed_nodes.add(current_node)
+
+    # If current_node is the goal, exit the search loop
+    if current_node == goal_index:
+      path_found = True
+      break
+
+    # Get neighbors
+    neighbors = find_neighbors(current_node, width, height, costmap, resolution)
+
+    # Loop neighbors
+    for neighbor_index, step_cost in neighbors:
+
+      # Check if the neighbor has already been visited
+      if neighbor_index in closed_nodes:
+        continue
+
+      # calculate g_cost of neighbour if movement passes through current_node
+      g_cost = g_costs[current_node] + step_cost
+
+      # Check if the neighbor is in open_list
+      in_open_list = False
+      for idx, element in enumerate(open_list):
+        if element[0] == neighbor_index:
+          in_open_list = True
+          break
+
+      # CASE 1: neighbor already in open_list
+      if in_open_list:
+        if g_cost < g_costs[neighbor_index]:
+          # Update the node's g_cost inside g_costs
+          g_costs[neighbor_index] = g_cost
+          parents[neighbor_index] = current_node
+          # Update the node's g_cost inside open_list
+          open_list[idx] = [neighbor_index, g_cost]
+
+      # CASE 2: neighbor not in open_list
+      else:
+        # Set the node's g_cost inside g_costs
+        g_costs[neighbor_index] = g_cost
+        parents[neighbor_index] = current_node
+        # Add neighbor to open_list
+        open_list.append([neighbor_index, g_cost])
+
+  rospy.loginfo('Dijkstra: Done traversing nodes in open_list')
+
+  if not path_found:
+    rospy.logwarn('Dijkstra: No path found!')
+    return shortest_path
+
+  ## Build path by working backwards from target
+  if path_found:
+      node = goal_index
+      shortest_path.append(goal_index)
+      while node != start_index:
+          node = parents[node]
+          shortest_path.append(node)
+  # reverse list
+  shortest_path = shortest_path[::-1]
+  rospy.loginfo('Dijkstra: Done reconstructing path')
+
+  # print statistics
+  rospy.loginfo('++++++++ Dijkstra execution metrics ++++++++')
+  rospy.loginfo('Total nodes expanded: %s', str(len(closed_nodes)))
+  rospy.loginfo('Nodes in frontier: %s', str(len(open_list)))
+  rospy.loginfo('Unvisited nodes (this includes obstacles): %s', str((height * width)-len(closed_nodes)-len(open_list))) # note: this number includes obstacles
+
+  return shortest_path
 
 # Creates service 'make_plan', service requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)

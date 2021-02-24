@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Launch file for Path Planning Course Unit 3 exercises  -->
+<!-- Launch file for Path Planning Course Unit 2 solution  -->
 <!-- Requires simulation w/robot running -->
 <launch>
 
   <!-- Run the map server to load a pre-made map -->
-  <arg name="map_file" default="$(find unit3_exercises_pp)/maps/map_unit3_74x74x20cm.yaml"/>
+  <arg name="map_file" default="$(find unit2_pp)/maps/map_unit2_74x74x20cm.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <!-- MOVE_BASE -->
-  <include file="$(find unit3_exercises_pp)/launch/move_base.launch" />
+  <include file="$(find unit2_pp)/launch/move_base.launch" />
 
   <!-- Determine whether to run Rviz or not & set Rviz config file-->
   <arg name="use_rviz" default="true" />
-  <arg name="rvizconfig" default="$(find unit3_exercises_pp)/rviz/unit3_exercises.rviz"/>
+  <arg name="rvizconfig" default="$(find unit2_pp)/rviz/unit2_exercises.rviz"/>
   <!-- Launching Rviz -->
   <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
 
   <!-- Start service server that responds with a plan for global path planning -->
-  <node pkg="unit3_exercises_pp" name="dijkstra_exercise" type="unit3_exercise.py" output="screen"/> 
+  <node pkg="unit2_pp" name="dijkstra_exercise" type="unit2_solution.py" output="screen"/> 
 
 </launch>
