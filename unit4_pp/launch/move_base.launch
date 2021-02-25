@@ -12,15 +12,15 @@
 
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find unit5_exercises_pp)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find unit5_exercises_pp)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find unit5_exercises_pp)/config/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find unit5_exercises_pp)/config/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find unit5_exercises_pp)/config/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find unit4_pp)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find unit4_pp)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find unit4_pp)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find unit4_pp)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find unit4_pp)/config/dwa_local_planner_params.yaml" command="load" />
 
-    <rosparam file="$(find unit5_exercises_pp)/config/move_base_params.yaml" command="load" />
-    <rosparam file="$(find unit5_exercises_pp)/config/global_planner_params.yaml" command="load" />
-    <rosparam file="$(find unit5_exercises_pp)/config/navfn_global_planner_params.yaml" command="load" />
+    <rosparam file="$(find unit4_pp)/config/move_base_params.yaml" command="load" />
+    <rosparam file="$(find unit4_pp)/config/global_planner_params.yaml" command="load" />
+    <rosparam file="$(find unit4_pp)/config/navfn_global_planner_params.yaml" command="load" />
 
 
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>

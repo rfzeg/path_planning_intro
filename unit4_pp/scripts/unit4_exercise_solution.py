@@ -6,7 +6,7 @@ Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
 License: BSD-3-Clause
 Date: December 2020
-Usage: roslaunch unit5_exercises_pp unit5_solution.launch
+Usage: roslaunch unit4_pp unit4_solution.launch
 """
 
 import rospy
