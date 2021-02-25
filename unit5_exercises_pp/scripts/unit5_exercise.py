@@ -12,56 +12,12 @@ Usage: roslaunch unit5_exercises_pp unit5_exercise.launch
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
 # for Rviz visualization
-from visualization_msgs.msg import MarkerArray, Marker
-from std_msgs.msg import  Header, ColorRGBA
-from geometry_msgs.msg import Point, Vector3
+from tree_visualizer import TreeVisualizer
 
 from math import hypot, sqrt, atan2, cos, sin
 from random import randrange as rand
 #  Bresenham ray tracing on a grid map
 from bresenham import bresenham
-
-def grid_to_world(xy_grid, map_resolution, origin):
-    """
-    Convert x,y grid cell/pixel coordinates to world coordinates (in meters)
-    This transformation is derived from the map resolution and map origin
-    @param xy_grid cell/pixel coordinates as a list [x,y]
-    @param map_resolution side of each grid map square in meters
-    @param origin cell/pixel coordinates as a list [x,y]
-    @return list with [x,y] values in world coordinates
-    """
-    output_list = []
-    output_list.append(map_resolution * xy_grid[0] + origin[0])
-    output_list.append(map_resolution * xy_grid[1] + origin[1])
-    return output_list
-
-def visualize_tree(tree_in_grid_frame, resolution, origin, id=0, frame="map"):
-  tree_in_world_frame = []
-  for n in tree_in_grid_frame:
-    tree_in_world_frame.append(grid_to_world(n.coordinates, resolution, origin))
-    tree_in_world_frame.append(grid_to_world(n.parent.coordinates, resolution, origin))
-
-  marker = Marker()
-  marker.header = Header(frame_id=frame)
-  marker.header.stamp = rospy.Time.now()
-  marker.ns = "Tree"
-  marker.id = id
-  marker.type = Marker.LINE_LIST
-  marker.color = ColorRGBA(1, 0, 0, 1)
-  marker.pose.position.x = 0
-  marker.pose.position.y = 0
-  marker.pose.position.z = 0
-  marker.pose.orientation.x = 0.0
-  marker.pose.orientation.y = 0.0
-  marker.pose.orientation.z = 0.0
-  marker.pose.orientation.w = 1.0
-  marker.points = [Point(n[0], n[1], 0) for n in tree_in_world_frame]
-  marker.scale = Vector3(0.1, 0, 0)
-
-  pub_tree.publish(marker)
-  rospy.sleep(0.01)
-
-  return
 
 # Node class
 class Node:
@@ -97,11 +53,13 @@ def make_plan(req):
   initial_position = indexToGridCell(start_index, width)
   target_position = indexToGridCell(goal_index, width)
 
+  viz = TreeVisualizer(map_resolution, map_origin, id=1, frame="map")
+
   # time statistics
   start_time = rospy.Time.now()
 
   # Calculate a path using RRT
-  path = rrt(initial_position, target_position, width, height, map, map_resolution, map_origin)
+  path = rrt(initial_position, target_position, width, height, map, map_resolution, map_origin, viz)
 
   if not path:
     rospy.logwarn("No path returned by RRT")
@@ -207,7 +165,7 @@ def build_path(latest_node):
     
   pass
 
-def rrt(initial_position, target_position, width, height, map, map_resolution, map_origin):
+def rrt(initial_position, target_position, width, height, map, map_resolution, map_origin, tree_viz):
   ''' 
   Performs Rapidly exploring random trees (RRT) algorithm on a costmap with a given start and goal node
   '''
@@ -218,5 +176,4 @@ def rrt(initial_position, target_position, width, height, map, map_resolution, m
 
 # create a service named 'make_plan', requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
-pub_tree = rospy.Publisher('/rrt_tree', Marker, queue_size=1)
 rospy.spin()
