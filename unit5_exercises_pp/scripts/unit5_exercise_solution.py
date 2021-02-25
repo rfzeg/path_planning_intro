@@ -4,7 +4,7 @@
 ROS service server for Rapidly Exploring Random Trees (RRT) algorithm path planning exercise
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
-License License BSD-3-Clause
+License: BSD-3-Clause
 Date: December 2020
 Usage: roslaunch unit5_exercises_pp unit5_solution.launch
 """
@@ -79,8 +79,11 @@ def make_plan(req):
   requests from clients. It returns a PathPlanningPluginResponse
   '''
   # This is the data you get from the request
-  # The costmap is a 1-D array version of the original costmap image
-  costmap = list(req.costmap_ros)
+  # The costmap is a 1-D tuple flat map representation
+  map = list(req.costmap_ros)
+  # Change values on the map from unknown to free space
+  map[map==255] = 1
+
   width = req.width
   height = req.height
   start_index = req.start
@@ -91,11 +94,14 @@ def make_plan(req):
   # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
   map_origin = [-20.0, -20.0]
 
+  initial_position = indexToGridCell(start_index, width)
+  target_position = indexToGridCell(goal_index, width)
+
   # time statistics
   start_time = rospy.Time.now()
 
   # Calculate a path using RRT
-  path = rrt(start_index, goal_index, width, height, costmap, map_resolution, map_origin)
+  path = rrt(initial_position, target_position, width, height, map, map_resolution, map_origin)
 
   if not path:
     rospy.logwarn("No path returned by RRT")
@@ -108,9 +114,15 @@ def make_plan(req):
     rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
     rospy.loginfo('RRT: Path sent to navigation stack')
 
+  # convert [x,y] points into 1-D linear array index
+  path_as_indices = []
+  for cell in path:
+      # access an element in a 1D-array (map) providing index = x + width*y
+      path_as_indices.append(cell[0]+width*cell[1])
+
   # make a response object
   resp = PathPlanningPluginResponse()
-  resp.plan = path
+  resp.plan = path_as_indices
   rospy.loginfo('RRT: Path sent to navigation stack')
   
   return resp
@@ -141,46 +153,15 @@ def calculateAngle(from_node, to_node):
 
 def indexToGridCell(array_index, map_width):
   """
-  Converts a linear index value to a x,y grid cell coordinate value
-  This transformation is derived from map width
+  Converts a linear index value to a list containing [x,y] grid cell coordinate values
+  This transformation is derived from the map width
   @param a linear index value, specifying a cell/pixel in an 1-D array
   @param map_width 
-  @return x,y grid cell coordinates
+  @return list with [x,y] grid cell coordinates
   """
   grid_cell_map_x = array_index % map_width
   grid_cell_map_y = array_index // map_width
-  return grid_cell_map_x, grid_cell_map_y
-
-def create_branch(from_node_coord, to_node_coord, max_distance):
-  """
-  Creates a node at the max_branch_distance towards the random point
-  @param from_node: the node to go from (list containing x and y values)
-  @param to_node: the node to go to (list containing x and y values)
-  @param max_distance: the expand distance (in grid cells)
-  @return: new node as a list containing x and y values
-  """
-  new_node_coord = list(from_node_coord)
-  d = calculateDistance(new_node_coord, to_node_coord)
-  theta = calculateAngle(new_node_coord, to_node_coord)
-
-  # if distance to closest node is less than the maximum branch lenght
-  if max_distance > d:
-      max_distance = d
-
-  new_node_coord[0] += int(max_distance * cos(theta))
-  new_node_coord[1] += int(max_distance * sin(theta))
-
-  return new_node_coord
-
-def find_closest_node(random_pt, node_list):
-  # Return the closest node in the tree
-  nearest_distance = float('inf')
-  for n in node_list:
-    current_distance = calculateDistance(random_pt,n.coordinates)
-    if current_distance < nearest_distance:
-      nearest_node = n
-      nearest_distance = current_distance
-  return nearest_node
+  return [grid_cell_map_x, grid_cell_map_y]
 
 def collision_detected(p1, p2, map, width):
   """
@@ -197,9 +178,35 @@ def collision_detected(p1, p2, map, width):
   # No collision
   return False
 
+def find_closest_node(random_xy_pt, node_list):
+  """
+  Returns the closest node in the tree
+  """
+  nearest_distance = float('inf')
+  for n in node_list:
+    current_distance = calculateDistance(random_xy_pt, n.coordinates)
+    if current_distance < nearest_distance:
+      nearest_node = n
+      nearest_distance = current_distance
+  return nearest_node
+
+def create_branch(from_xy, to_xy, max_distance):
+  """
+  Calculates the x,y values for a new node at the max_branch_distance towards the random point
+  """
+  new_node_coordinates = from_xy
+  distance = calculate_distance(from_xy, to_xy)
+  theta = calculate_angle(from_xy, to_xy)
+  # check if distance to random point exceeds the maximum branch lenght
+  if distance > max_distance:
+      distance = max_distance
+  new_node_coordinates[0] += int(distance * cos(theta))
+  new_node_coordinates[1] += int(distance * sin(theta))
+  return new_node_coordinates
+
 def test_goal(current, goal, tolerance):
   """
-  Test if goal has been reached considering a tolerance distance
+  Tests if goal has been reached considering a tolerance distance
   """
   # Use calculate_distance() function
   distance = calculateDistance(current, goal)
@@ -222,19 +229,10 @@ def build_path(latest_node):
   reconstructed_path.reverse()
   return reconstructed_path
 
-def rrt(start_index, goal_index, width, height, costmap, map_resolution, map_origin):
+def rrt(initial_position, target_position, width, height, map, map_resolution, map_origin):
   ''' 
   Performs Rapidly exploring random trees (RRT) algorithm on a costmap with a given start and goal node
   '''
-  map_size = height * width
-  start_x, start_y = indexToGridCell(start_index, width)
-  target_x, target_y = indexToGridCell(goal_index, width)
-  initial_position = [start_x, start_y]
-  target_position = [target_x, target_y]
-  # map is a 1-D array costmap
-  map = costmap[:]
-  # Change values on the map from unknown to free space
-  map[map==255] = 1
 
   ### Add code from exercise 3.5.1. HERE ###
   root_node = Node(initial_position,None)
@@ -280,15 +278,9 @@ def rrt(start_index, goal_index, width, height, costmap, map_resolution, map_ori
 
   rospy.loginfo('RRT: Path search ended')
   # Build the path
-  path_as_coordinates = build_path(new_node)
-
-  # convert (x,y) points into 1-D linear array index
-  path_as_indices = []
-  for cell in path_as_coordinates:
-      # access an element in a 1D-array (map) providing index = x + width*y
-      path_as_indices.append(cell[0]+width*cell[1])
+  path = build_path(new_node)
  
-  return path_as_indices
+  return path
 
 # create a service named 'make_plan', requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)

@@ -4,7 +4,7 @@
 ROS service server for Rapidly Exploring Random Trees (RRT) algorithm path planning exercise
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
-License License BSD-3-Clause
+License: BSD-3-Clause
 Date: December 2020
 Usage: roslaunch unit5_exercises_pp unit5_exercise.launch
 """
@@ -79,8 +79,11 @@ def make_plan(req):
   requests from clients. It returns a PathPlanningPluginResponse
   '''
   # This is the data you get from the request
-  # The costmap is a 1-D array version of the original costmap image
-  costmap = list(req.costmap_ros)
+  # The costmap is a 1-D tuple flat map representation
+  map = list(req.costmap_ros)
+  # Change values on the map from unknown to free space
+  map[map==255] = 1
+
   width = req.width
   height = req.height
   start_index = req.start
@@ -91,11 +94,14 @@ def make_plan(req):
   # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
   map_origin = [-20.0, -20.0]
 
+  initial_position = indexToGridCell(start_index, width)
+  target_position = indexToGridCell(goal_index, width)
+
   # time statistics
   start_time = rospy.Time.now()
 
   # Calculate a path using RRT
-  path = rrt(start_index, goal_index, width, height, costmap, map_resolution, map_origin)
+  path = rrt(initial_position, target_position, width, height, map, map_resolution, map_origin)
 
   if not path:
     rospy.logwarn("No path returned by RRT")
@@ -108,10 +114,17 @@ def make_plan(req):
     rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
     rospy.loginfo('RRT: Path sent to navigation stack')
 
+  # convert [x,y] points into 1-D linear array index
+  path_as_indices = []
+  for cell in path:
+      # access an element in a 1D-array (map) providing index = x + width*y
+      path_as_indices.append(cell[0]+width*cell[1])
+
   # make a response object
   resp = PathPlanningPluginResponse()
-  resp.plan = path
-  
+  resp.plan = path_as_indices
+  rospy.loginfo('RRT: Path sent to navigation stack')
+
   return resp
 
 def calculateDistance(from_node, to_node):
@@ -140,15 +153,15 @@ def calculateAngle(from_node, to_node):
 
 def indexToGridCell(array_index, map_width):
   """
-  Converts a linear index value to a x,y grid cell coordinate value
-  This transformation is derived from map width
+  Converts a linear index value to a list containing [x,y] grid cell coordinate values
+  This transformation is derived from the map width
   @param a linear index value, specifying a cell/pixel in an 1-D array
   @param map_width 
-  @return x,y grid cell coordinates
+  @return list with [x,y] grid cell coordinates
   """
   grid_cell_map_x = array_index % map_width
   grid_cell_map_y = array_index // map_width
-  return grid_cell_map_x, grid_cell_map_y
+  return [grid_cell_map_x, grid_cell_map_y]
 
 def collision_detected(p1, p2, map, width):
   """
@@ -194,19 +207,10 @@ def build_path(latest_node):
     
   pass
 
-def rrt(start_index, goal_index, width, height, costmap, map_resolution, map_origin):
+def rrt(initial_position, target_position, width, height, map, map_resolution, map_origin):
   ''' 
   Performs Rapidly exploring random trees (RRT) algorithm on a costmap with a given start and goal node
   '''
-  map_size = height * width
-  start_x, start_y = indexToGridCell(start_index, width)
-  target_x, target_y = indexToGridCell(goal_index, width)
-  initial_position = [start_x, start_y]
-  target_position = [target_x, target_y]
-  # map is a 1-D array costmap
-  map = costmap[:]
-  # Change values on the map from unknown to free space
-  map[map==255] = 1
 
   ### Add code from exercise 3.5.1. HERE ###
 
