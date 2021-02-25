@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>unit4_exercises_pp</name>
+  <name>unit3_pp</name>
   <version>0.1.0</version>
-  <description>The unit4_exercises_pp package, for the mapping and path planning course</description>
+  <description>The unit3_pp package, for the path planning course</description>
 
   <author>Roberto Zegers</author>
   <maintainer email="roberto@todo.todo">Roberto Zegers</maintainer>

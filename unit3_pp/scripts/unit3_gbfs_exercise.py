@@ -1,19 +1,19 @@
 #! /usr/bin/env python
 
 """
-ROS service server for A-Star's algorithm path planning exercise
+ROS service server for Greedy Best-First-Search path planning exercise
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
-License License BSD-3-Clause
+License: BSD-3-Clause
 Date: Nov 30, 2020
-Usage: roslaunch unit4_exercises_pp unit4_astar_exercise.launch
+Usage: roslaunch unit3_pp unit3_gbfs_exercise.launch
 """
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
 import math
 
-rospy.init_node('astar_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+rospy.init_node('gbfs_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
 def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
   """
@@ -51,33 +51,6 @@ def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
 
   return neighbors
 
-def euclidean_distance(a, b):
-    distance = 0
-    for i in range(len(a)):
-        distance += (a[i] - b[i]) ** 2
-    return distance ** 0.5
-
-def manhattan_distance(a, b):
-    return (abs(a[0] - b[0]) + abs(a[1] - b[1]))
-
-def indexToWorldCoord(array_index, map_width, map_resolution, map_origin = [0,0]):
-    """
-    Converts a linear index value to world coordinates (meters) in the form of a python list
-    This transformation is derived from map width
-    @param a linear index value, specifying a cell/pixel in an 1-D array
-    @param map_width: number of columns in the occupancy grid
-    @param map_resolution: side of each grid map square in meters
-    @param map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
-    @return list containing x,y coordinates in the world frame of reference
-    """
-    # convert to x,y grid cell/pixel coordinates
-    grid_cell_map_x = array_index % map_width
-    grid_cell_map_y = array_index // map_width
-    # convert to world coordinates
-    x = map_resolution * grid_cell_map_x + map_origin[0]
-    y = map_resolution * grid_cell_map_y + map_origin[1]
-
-    return [x,y]
 
 def make_plan(req):
   ''' 
@@ -101,11 +74,11 @@ def make_plan(req):
   # time statistics
   start_time = rospy.Time.now()
 
-  # calculate the shortes path using A-star
-  path = a_star(start_index, goal_index, width, height, costmap, resolution, origin)
+  # Find a path using Greedy Best-First-Search
+  path = gbfs(start_index, goal_index, width, height, costmap, resolution, origin)
 
   if not path:
-    rospy.logwarn("No path returned by A-star")
+    rospy.logwarn("No path returned by Greedy Best-First-Search")
     path = []
   else:
     # print time statistics
@@ -118,14 +91,13 @@ def make_plan(req):
   resp.plan = path
   return resp
 
-def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
+def gbfs(start_index, goal_index, width, height, costmap, resolution, origin):
   ''' 
-  Performs A-star's shortes path algorithm search on a costmap with a given start and goal node
+  Performs Greedy Best-First-Search on a costmap with a given start and goal node
   '''
 
   # create an open_list
   open_list = []
-
   open_list.append([start_index, 0])
 
   # set to hold already processed nodes
@@ -138,17 +110,14 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
   g_costs = dict()
   g_costs[start_index] = 0
 
-  # dict for mapping f costs to nodes
-  f_costs = dict()
-  f_costs[start_index] = 0
-
   shortest_path = []
 
   path_found = False
-  rospy.loginfo('A-Star: Done with initialization')
+  rospy.loginfo('GBFS: Done with initialization')
 
   # Main loop, executes while there are still nodes in open_list
   while open_list:
+
     # sort open_list according to the second element of each sublist
     open_list.sort(key = lambda x: x[1]) 
     # extract the first element (the one with the shortes travel cost)
@@ -172,16 +141,8 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
       if neighbor_index in closed_nodes:
         continue
 
-      # calculate g value of neighbour if movement passes through current_node
+      # calculate g_cost of neighbour if movement passes through current_node
       g_cost = g_costs[current_node] + step_cost
-
-      # pure heuristic 'h_cost'
-      from_xy = indexToWorldCoord(current_node, width, resolution, origin)
-      to_xy = indexToWorldCoord(goal_index, width, resolution, origin)
-      h_cost = euclidean_distance(from_xy, to_xy)
-
-      # A Star's heuristic value
-      f_cost = g_cost + h_cost
 
       # Check if the neighbor is in open_list
       in_open_list = False
@@ -192,29 +153,25 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
 
       # CASE 1: neighbor already in open_list
       if in_open_list:
-        if f_cost < f_costs[neighbor_index]:
-          # Update the node's g_cost (travel cost)
+        if g_cost < g_costs[neighbor_index]:
+          # Update the node's g_cost inside g_costs
           g_costs[neighbor_index] = g_cost
-          # Update the node's f_cost (A-Star heuristic)
-          f_costs[neighbor_index] = f_cost
           parents[neighbor_index] = current_node
-          # Update the node's f_cost inside open_list
-          open_list[idx] = [neighbor_index, f_cost]
+          # Update the node's g_cost inside open_list
+          open_list[idx] = [neighbor_index, g_cost]
 
       # CASE 2: neighbor not in open_list
       else:
-        # Set the node's g_cost (travel cost)
+        # Set the node's g_cost inside g_costs
         g_costs[neighbor_index] = g_cost
-        # Set the node's f_cost (A-Star heuristic)
-        f_costs[neighbor_index] = f_cost
         parents[neighbor_index] = current_node
         # Add neighbor to open_list
-        open_list.append([neighbor_index, f_cost])
+        open_list.append([neighbor_index, g_cost])
 
-  rospy.loginfo('A-Star: Done traversing nodes in open_list')
+  rospy.loginfo('GBFS: Done traversing nodes in open_list')
 
   if not path_found:
-    rospy.logwarn('A-Star: No path found!')
+    rospy.logwarn('GBFS: No path found!')
     return shortest_path
 
   ## Build path by working backwards from target
@@ -226,10 +183,10 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
           shortest_path.append(node)
   # reverse list
   shortest_path = shortest_path[::-1]
-  rospy.loginfo('A-Star: Done reconstructing path')
+  rospy.loginfo('GBFS: Done reconstructing path')
 
   # print statistics
-  rospy.loginfo('++++++++ A-Star execution metrics ++++++++')
+  rospy.loginfo('++++++++ GBFS execution metrics ++++++++')
   rospy.loginfo('Total nodes expanded: %s', str(len(closed_nodes)))
   rospy.loginfo('Nodes in frontier: %s', str(len(open_list)))
   rospy.loginfo('Unvisited nodes (this includes obstacles): %s', str((height * width)-len(closed_nodes)-len(open_list))) # note: this number includes obstacles

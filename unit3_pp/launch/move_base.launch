@@ -4,7 +4,7 @@
 <launch>
   <!-- Specify the name of the sensor data and command topics (can be overridden on the command line) -->
   <!-- If no laser data is provided the local and global planer will be unable to perform dynamic obstacle avoidance -->
-  <arg name="scan_topic" default="/scan"/>
+  <arg name="scan_topic" default="/kobuki/laser/scan"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="odom_topic" default="/odom"/>
  
@@ -21,16 +21,16 @@
 
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find unit4_exercises_pp)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find unit4_exercises_pp)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find unit4_exercises_pp)/config/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find unit4_exercises_pp)/config/global_costmap_params.yaml" command="load" />
-<!--<rosparam file="$(find unit4_exercises_pp)/config/base_local_planner_params.yaml" command="load" /> -->
-    <rosparam file="$(find unit4_exercises_pp)/config/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find unit3_pp)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find unit3_pp)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find unit3_pp)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find unit3_pp)/config/global_costmap_params.yaml" command="load" />
+<!--<rosparam file="$(find unit3_pp)/config/base_local_planner_params.yaml" command="load" /> -->
+    <rosparam file="$(find unit3_pp)/config/dwa_local_planner_params.yaml" command="load" />
 
-    <rosparam file="$(find unit4_exercises_pp)/config/move_base_params.yaml" command="load" />
-    <rosparam file="$(find unit4_exercises_pp)/config/global_planner_params.yaml" command="load" />
-    <rosparam file="$(find unit4_exercises_pp)/config/navfn_global_planner_params.yaml" command="load" />
+    <rosparam file="$(find unit3_pp)/config/move_base_params.yaml" command="load" />
+    <rosparam file="$(find unit3_pp)/config/global_planner_params.yaml" command="load" />
+    <rosparam file="$(find unit3_pp)/config/navfn_global_planner_params.yaml" command="load" />
 
 
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>

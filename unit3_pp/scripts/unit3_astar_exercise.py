@@ -4,9 +4,9 @@
 ROS service server for A-Star's algorithm path planning exercise
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
-License License BSD-3-Clause
+License: BSD-3-Clause
 Date: Nov 30, 2020
-Usage: roslaunch unit4_exercises_pp unit4_astar_solution.launch
+Usage: roslaunch unit3_pp unit3_astar_exercise.launch
 """
 
 import rospy
@@ -149,9 +149,9 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
 
   # Main loop, executes while there are still nodes in open_list
   while open_list:
-    # sort open_list according to the second element of each sublist (f_cost)
+    # sort open_list according to the second element of each sublist
     open_list.sort(key = lambda x: x[1]) 
-    # extract the first element (the one with the lowest f_cost)
+    # extract the first element (the one with the shortes travel cost)
     current_node = open_list.pop(0)[0]
 
     # Close current_node to prevent from visting it again
