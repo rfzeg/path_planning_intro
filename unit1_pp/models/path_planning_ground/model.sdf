@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
- <model name='playground'>
+ <model name='path_planning_ground'>
       <static>1</static>
 
       <link name='wall'>
@@ -30,7 +30,7 @@
         <visual name='visual_wall'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_30m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_30m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -66,7 +66,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -100,7 +100,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -135,7 +135,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/round_concrete_base.dae</uri>
+              <uri>model://path_planning_ground/meshes/round_concrete_base.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -169,7 +169,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -204,7 +204,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/round_concrete_base.dae</uri>
+              <uri>model://path_planning_ground/meshes/round_concrete_base.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -238,7 +238,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -272,7 +272,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -306,7 +306,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_l.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_l.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -340,7 +340,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -374,7 +374,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -408,7 +408,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -446,7 +446,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -481,7 +481,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -516,7 +516,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_l.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_l.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -551,7 +551,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -587,7 +587,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -622,7 +622,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -657,7 +657,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_l.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_l.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -692,7 +692,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_m.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_m.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -728,7 +728,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -763,7 +763,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -799,7 +799,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -834,7 +834,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -870,7 +870,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -905,7 +905,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -941,7 +941,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -976,7 +976,7 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>model://playground/meshes/concrete_barrier_xl.dae</uri>
+              <uri>model://path_planning_ground/meshes/concrete_barrier_xl.dae</uri>
             </mesh>
           </geometry>
         </visual>
