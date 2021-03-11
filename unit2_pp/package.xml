@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>unit2_pp</name>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <description>The unit2_pp package, for the path planning course</description>
 
   <author>Roberto Zegers</author>
