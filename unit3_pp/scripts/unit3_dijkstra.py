@@ -1,19 +1,19 @@
 #! /usr/bin/env python
 
 """
-A-Star path planning algorithm exercise
+Dijkstra's path planning algorithm 
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
 License: BSD-3-Clause
 Date: Nov 30, 2020
-Usage: roslaunch unit3_pp unit3_astar_exercise.launch
+Usage: roslaunch unit3_pp unit3_dijkstra.launch
 """
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
 from gridviz import GridViz
 
-rospy.init_node('astar_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+rospy.init_node('dijkstra_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
 def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
   """
@@ -77,23 +77,6 @@ def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
 
   return neighbors
 
-def indexToWorld(flatmap_index, map_width, map_resolution, map_origin = [0,0]):
-    """
-    Converts a flatmap index value to world coordinates (meters)
-    flatmap_index: a linear index value, specifying a cell/pixel in an 1-D array
-    map_width: number of columns in the occupancy grid
-    map_resolution: side lenght of each grid map cell in meters
-    map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
-    Returns a list containing x,y coordinates in the world frame of reference
-    """
-    # convert to x,y grid cell/pixel coordinates
-    grid_cell_map_x = flatmap_index % map_width
-    grid_cell_map_y = flatmap_index // map_width
-    # convert to world coordinates
-    x = map_resolution * grid_cell_map_x + map_origin[0]
-    y = map_resolution * grid_cell_map_y + map_origin[1]
-
-    return [x,y]
 
 def make_plan(req):
   ''' 
@@ -110,7 +93,7 @@ def make_plan(req):
   goal_index = req.goal
   # side of each grid map square in meters
   resolution = 0.2
-  # origin of grid map
+  # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
   origin = [-7.4, -7.4, 0]
 
   viz = GridViz(costmap, resolution, origin, start_index, goal_index, width)
@@ -118,16 +101,16 @@ def make_plan(req):
   # time statistics
   start_time = rospy.Time.now()
 
-  # calculate the shortes path using A-star
-  path = a_star(start_index, goal_index, width, height, costmap, resolution, origin, viz)
+  # calculate the shortes path using Dijkstra
+  path = dijkstra(start_index, goal_index, width, height, costmap, resolution, origin, viz)
 
   if not path:
-    rospy.logwarn("No path returned by A-star")
+    rospy.logwarn("No path returned by Dijkstra's shortes path algorithm")
     path = []
   else:
     execution_time = rospy.Time.now() - start_time
     print("\n")
-    rospy.loginfo('+++++++++ A-Star execution metrics +++++++++')
+    rospy.loginfo('++++++++ Dijkstra execution metrics ++++++++')
     rospy.loginfo('Total execution time: %s seconds', str(execution_time.to_sec()))
     rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
     print("\n")
@@ -136,18 +119,9 @@ def make_plan(req):
   resp.plan = path
   return resp
 
-def euclidean_distance(a, b):
-    distance = 0
-    for i in range(len(a)):
-        distance += (a[i] - b[i]) ** 2
-    return distance ** 0.5
-
-def manhattan_distance(a, b):
-    return (abs(a[0] - b[0]) + abs(a[1] - b[1]))
-
-def a_star(start_index, goal_index, width, height, costmap, resolution, origin, grid_viz):
+def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin, grid_viz):
   ''' 
-  Performs A-star's shortes path algorithm search on a costmap with a given start and goal node
+  Performs Dijkstra's shortes path algorithm search on a costmap with a given start and goal node
   '''
 
   # create an open_list
@@ -159,31 +133,26 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin, 
   # dict for mapping children to parent
   parents = dict()
 
-  # dict for mapping h costs (heuristic costs) to nodes
-  h_costs = dict()
+  # dict for mapping g costs (travel costs) to nodes
+  g_costs = dict()
 
-  # determine the h cost (heuristic cost) for the start node
-  from_xy = indexToWorld(start_index, width, resolution, origin)
-  to_xy = indexToWorld(goal_index, width, resolution, origin)
-  h_cost = euclidean_distance(from_xy, to_xy)
-
-  # set the start's node h_cost
-  h_costs[start_index] = h_cost
+  # set the start's node g_cost
+  g_costs[start_index] = 0
 
   # add start node to open list
-  open_list.append([start_index, h_cost])
+  open_list.append([start_index, 0])
 
   shortest_path = []
 
   path_found = False
-  rospy.loginfo('A-Star: Done with initialization')
+  rospy.loginfo('Dijkstra: Done with initialization')
 
   # Main loop, executes as long as there are still nodes inside open_list
   while open_list:
 
-    # sort open_list according to the lowest 'h_cost' value (second element of each sublist)
+    # sort open_list according to the lowest 'g_cost' value (second element of each sublist)
     open_list.sort(key = lambda x: x[1]) 
-    # extract the first element (the one with the lowest 'h_cost' value)
+    # extract the first element (the one with the lowest 'g_cost' value)
     current_node = open_list.pop(0)[0]
 
     # Close current_node to prevent from visting it again
@@ -207,11 +176,8 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin, 
       if neighbor_index in closed_list:
         continue
 
-      # determine the h cost for the current neigbour
-      from_xy = indexToWorld(neighbor_index, width, resolution, origin)
-      to_xy = indexToWorld(goal_index, width, resolution, origin)
-      h_cost = euclidean_distance(from_xy, to_xy)
-      #h_cost = manhattan_distance(from_xy, to_xy) # uncomment to use manhattan distance instead
+      # calculate g_cost of neighbour considering it is reached through current_node
+      g_cost = g_costs[current_node] + step_cost
 
       # Check if the neighbor is in open_list
       in_open_list = False
@@ -222,28 +188,28 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin, 
 
       # CASE 1: neighbor already in open_list
       if in_open_list:
-        if h_cost < h_costs[neighbor_index]:
-          # Update the node's heuristic cost
-          h_costs[neighbor_index] = h_cost
+        if g_cost < g_costs[neighbor_index]:
+          # Update the node's g_cost inside g_costs
+          g_costs[neighbor_index] = g_cost
           parents[neighbor_index] = current_node
-          # Update the node's h_cost inside open_list
-          open_list[idx] = [neighbor_index, h_cost]
+          # Update the node's g_cost inside open_list
+          open_list[idx] = [neighbor_index, g_cost]
 
       # CASE 2: neighbor not in open_list
       else:
-        # Set the node's heuristic cost
-        h_costs[neighbor_index] = h_cost
+        # Set the node's g_cost inside g_costs
+        g_costs[neighbor_index] = g_cost
         parents[neighbor_index] = current_node
         # Add neighbor to open_list
-        open_list.append([neighbor_index, h_cost])
+        open_list.append([neighbor_index, g_cost])
 
         # Optional: visualize frontier
         grid_viz.set_color(neighbor_index,'orange')
 
-  rospy.loginfo('A-Star: Done traversing nodes in open_list')
+  rospy.loginfo('Dijkstra: Done traversing nodes in open_list')
 
   if not path_found:
-    rospy.logwarn('A-Star: No path found!')
+    rospy.logwarn('Dijkstra: No path found!')
     return shortest_path
 
   # Reconstruct path by working backwards from target
@@ -252,12 +218,15 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin, 
       shortest_path.append(goal_index)
       while node != start_index:
           shortest_path.append(node)
+          # get next node
           node = parents[node]
   # reverse list
   shortest_path = shortest_path[::-1]
-  rospy.loginfo('A-Star: Done reconstructing path')
+  rospy.loginfo('Dijkstra: Done reconstructing path')
 
   return shortest_path
 
+# Creates service 'make_plan', service requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+
 rospy.spin()

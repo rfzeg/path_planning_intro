@@ -8,7 +8,7 @@
 
 <!-- Set name of the world to be launched, configure as required -->
 <!-- <arg name="world_name" default="worlds/empty.world"/> -->
-<arg name="world_name" default="$(find unit3_pp)/worlds/unit3_exercise.world"/>
+<arg name="world_name" default="$(find unit3_pp)/worlds/unit3.world"/>
 
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg world_name)"/> 
@@ -19,8 +19,8 @@
     <arg name="debug" value="false"/>
 </include>
 
-<arg name="x_pos" default="0.1"/>
-<arg name="y_pos" default="0.1"/>
+<arg name="x_pos" default="-2.9"/>
+<arg name="y_pos" default="-2.9"/>
 <arg name="z_pos" default="0.0"/>
 <arg name="yaw" default="0.0"/>
 

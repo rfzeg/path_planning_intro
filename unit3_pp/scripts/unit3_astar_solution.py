@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 """
-ROS service server for A-Star's algorithm path planning exercise
+ROS A-Star's algorithm path planning exercise solution
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
 License: BSD-3-Clause
@@ -11,68 +11,84 @@ Usage: roslaunch unit3_pp unit3_astar_solution.launch
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
-import math
+from gridviz import GridViz
 
 rospy.init_node('astar_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
-def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
+def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
   """
-  Identifies neighbor nodes in free space and inside the map boundaries
-  Returns a main list with neighbour nodes as [index, step_cost] pairs (sublists)
-  orthogonal_movement_cost: the cost of moving to an adjacent grid cell, the size/edge of one grid cell
+  Identifies neighbor nodes inspecting the 8 adjacent neighbors
+  Checks if neighbor is inside the map boundaries and if is not an obstacle according to a threshold
+  Returns a list with valid neighbour nodes as [index, step_cost] pairs
   """
-  # temporary list
-  check = []
-  # output list
   neighbors = []
+  # length of diagonal = length of one side by the square root of 2 (1.41421)
+  diagonal_step_cost = orthogonal_step_cost * 1.41421
+  # threshold value used to reject neighbor nodes as they are considered as obstacles [1-254]
+  lethal_cost = 1
 
-  # check that upper neighbour is not past the map's boundaries
-  if index - width > 0:
-    # append [index, step_cost] pair
-    check.append([index - width, orthogonal_movement_cost])
+  upper = index - width
+  if upper > 0:
+    if costmap[upper] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[upper]/255
+      neighbors.append([upper, step_cost])
 
-  # check that left neighbour is not past the map's boundaries
-  if (index - 1) % width > 0:
-    check.append([index - 1, orthogonal_movement_cost])
+  left = index - 1
+  if left % width > 0:
+    if costmap[left] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[left]/255
+      neighbors.append([left, step_cost])
 
-  # check that right neighbour is not past the map's boundaries
-  if (index + 1) % width != (width + 1):
-    check.append([index + 1, orthogonal_movement_cost])
+  upper_left = index - width - 1
+  if upper_left > 0 and upper_left % width > 0:
+    if costmap[upper_left] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[upper_left]/255
+      neighbors.append([index - width - 1, step_cost])
 
-  # check that lower neighbour is not past the map's boundaries
-  if (index + width) <= (height * width):
-    check.append([index + width, orthogonal_movement_cost])
+  upper_right = index - width + 1
+  if upper_right > 0 and (upper_right) % width != (width - 1):
+    if costmap[upper_right] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[upper_right]/255
+      neighbors.append([upper_right, step_cost])
 
-  for element in check:
-     # Check if neighbour node is an obstacle
-    if costmap[element[0]] == 0:
-      # appends [index, step_cost] sublist to output list
-      neighbors.append(element)
+  right = index + 1
+  if right % width != (width + 1):
+    if costmap[right] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[right]/255
+      neighbors.append([right, step_cost])
+
+  lower_left = index + width - 1
+  if lower_left < height * width and lower_left % width != 0:
+    if costmap[lower_left] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[lower_left]/255
+      neighbors.append([lower_left, step_cost])
+
+  lower = index + width
+  if lower <= height * width:
+    if costmap[lower] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[lower]/255
+      neighbors.append([lower, step_cost])
+
+  lower_right = index + width + 1
+  if (lower_right) <= height * width and lower_right % width != (width - 1):
+    if costmap[lower_right] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[lower_right]/255
+      neighbors.append([lower_right, step_cost])
 
   return neighbors
 
-def euclidean_distance(a, b):
-    distance = 0
-    for i in range(len(a)):
-        distance += (a[i] - b[i]) ** 2
-    return distance ** 0.5
-
-def manhattan_distance(a, b):
-    return (abs(a[0] - b[0]) + abs(a[1] - b[1]))
-
-def indexToWorldCoord(array_index, map_width, map_resolution, map_origin = [0,0]):
+def indexToWorld(flatmap_index, map_width, map_resolution, map_origin = [0,0]):
     """
-    Converts a linear index value to world coordinates (meters) in the form of a python list
-    This transformation is derived from map width
-    @param a linear index value, specifying a cell/pixel in an 1-D array
-    @param map_width: number of columns in the occupancy grid
-    @param map_resolution: side of each grid map square in meters
-    @param map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
-    @return list containing x,y coordinates in the world frame of reference
+    Converts a flatmap index value to world coordinates (meters)
+    flatmap_index: a linear index value, specifying a cell/pixel in an 1-D array
+    map_width: number of columns in the occupancy grid
+    map_resolution: side lenght of each grid map cell in meters
+    map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
+    Returns a list containing x,y coordinates in the world frame of reference
     """
     # convert to x,y grid cell/pixel coordinates
-    grid_cell_map_x = array_index % map_width
-    grid_cell_map_y = array_index // map_width
+    grid_cell_map_x = flatmap_index % map_width
+    grid_cell_map_y = flatmap_index // map_width
     # convert to world coordinates
     x = map_resolution * grid_cell_map_x + map_origin[0]
     y = map_resolution * grid_cell_map_y + map_origin[1]
@@ -92,33 +108,44 @@ def make_plan(req):
   height = req.height
   start_index = req.start
   goal_index = req.goal
-  # To-Do: replace numerical constants preferably with parameters / static_map srv
   # side of each grid map square in meters
   resolution = 0.2
-  # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
+  # origin of grid map
   origin = [-7.4, -7.4, 0]
+
+  viz = GridViz(costmap, resolution, origin, start_index, goal_index, width)
 
   # time statistics
   start_time = rospy.Time.now()
 
   # calculate the shortes path using A-star
-  path = a_star(start_index, goal_index, width, height, costmap, resolution, origin)
+  path = a_star(start_index, goal_index, width, height, costmap, resolution, origin, viz)
 
   if not path:
     rospy.logwarn("No path returned by A-star")
     path = []
   else:
-    # print time statistics
     execution_time = rospy.Time.now() - start_time
+    print("\n")
+    rospy.loginfo('+++++++++ A-Star execution metrics +++++++++')
     rospy.loginfo('Total execution time: %s seconds', str(execution_time.to_sec()))
     rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
+    print("\n")
 
-  # make a response object
   resp = PathPlanningPluginResponse()
   resp.plan = path
   return resp
 
-def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
+def euclidean_distance(a, b):
+    distance = 0
+    for i in range(len(a)):
+        distance += (a[i] - b[i]) ** 2
+    return distance ** 0.5
+
+def manhattan_distance(a, b):
+    return (abs(a[0] - b[0]) + abs(a[1] - b[1]))
+
+def a_star(start_index, goal_index, width, height, costmap, resolution, origin, grid_viz):
   ''' 
   Performs A-star's shortes path algorithm search on a costmap with a given start and goal node
   '''
@@ -126,61 +153,76 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
   # create an open_list
   open_list = []
 
-  open_list.append([start_index, 0])
-
   # set to hold already processed nodes
-  closed_nodes = set()
+  closed_list = set()
 
   # dict for mapping children to parent
   parents = dict()
 
   # dict for mapping g costs (travel costs) to nodes
   g_costs = dict()
+
+  # dict for mapping f costs (total costs) to nodes
+  f_costs = dict()
+
+  # determine g_cost for start node
   g_costs[start_index] = 0
 
-  # dict for mapping f costs to nodes
-  f_costs = dict()
-  f_costs[start_index] = 0
+  # determine the h cost (heuristic cost) for the start node
+  from_xy = indexToWorld(start_index, width, resolution, origin)
+  to_xy = indexToWorld(goal_index, width, resolution, origin)
+  h_cost = euclidean_distance(from_xy, to_xy)
+
+  # set the start's node f_cost (note: g_cost for start node = 0)
+  f_costs[start_index] = h_cost
+  
+  # add start node to open list (note: g_cost for start node = 0)
+  open_list.append([start_index, h_cost])
 
   shortest_path = []
 
   path_found = False
   rospy.loginfo('A-Star: Done with initialization')
 
-  # Main loop, executes while there are still nodes in open_list
+  # Main loop, executes as long as there are still nodes inside open_list
   while open_list:
-    # sort open_list according to the second element of each sublist (f_cost)
+
+    # sort open_list according to the lowest 'f_cost' value (second element of each sublist)
     open_list.sort(key = lambda x: x[1]) 
-    # extract the first element (the one with the lowest f_cost)
+    # extract the first element (the one with the lowest 'f_cost' value)
     current_node = open_list.pop(0)[0]
 
     # Close current_node to prevent from visting it again
-    closed_nodes.add(current_node)
+    closed_list.add(current_node)
 
-    # If current_node is the goal, exit the search loop
+    # Optional: visualize closed nodes
+    grid_viz.set_color(current_node,"pale yellow")
+
+    # If current_node is the goal, exit the main loop
     if current_node == goal_index:
       path_found = True
       break
 
-    # Get neighbors
+    # Get neighbors of current_node
     neighbors = find_neighbors(current_node, width, height, costmap, resolution)
 
     # Loop neighbors
     for neighbor_index, step_cost in neighbors:
 
       # Check if the neighbor has already been visited
-      if neighbor_index in closed_nodes:
+      if neighbor_index in closed_list:
         continue
 
       # calculate g value of neighbour if movement passes through current_node
       g_cost = g_costs[current_node] + step_cost
 
-      # pure heuristic 'h_cost'
-      from_xy = indexToWorldCoord(current_node, width, resolution, origin)
-      to_xy = indexToWorldCoord(goal_index, width, resolution, origin)
+      # determine the h cost for the current neigbour
+      from_xy = indexToWorld(neighbor_index, width, resolution, origin)
+      to_xy = indexToWorld(goal_index, width, resolution, origin)
       h_cost = euclidean_distance(from_xy, to_xy)
+      #h_cost = manhattan_distance(from_xy, to_xy) # uncomment to use manhattan distance instead
 
-      # A Star's heuristic value
+      # calculate A-Star's total cost for the current neigbour
       f_cost = g_cost + h_cost
 
       # Check if the neighbor is in open_list
@@ -195,7 +237,7 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
         if f_cost < f_costs[neighbor_index]:
           # Update the node's g_cost (travel cost)
           g_costs[neighbor_index] = g_cost
-          # Update the node's f_cost (A-Star heuristic)
+          # Update the node's f_cost (A-Star's total cost)
           f_costs[neighbor_index] = f_cost
           parents[neighbor_index] = current_node
           # Update the node's f_cost inside open_list
@@ -205,11 +247,14 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
       else:
         # Set the node's g_cost (travel cost)
         g_costs[neighbor_index] = g_cost
-        # Set the node's f_cost (A-Star heuristic)
+        # Set the node's f_cost (A-Star total cost)
         f_costs[neighbor_index] = f_cost
         parents[neighbor_index] = current_node
         # Add neighbor to open_list
         open_list.append([neighbor_index, f_cost])
+
+        # Optional: visualize frontier
+        grid_viz.set_color(neighbor_index,'orange')
 
   rospy.loginfo('A-Star: Done traversing nodes in open_list')
 
@@ -217,26 +262,19 @@ def a_star(start_index, goal_index, width, height, costmap, resolution, origin):
     rospy.logwarn('A-Star: No path found!')
     return shortest_path
 
-  ## Build path by working backwards from target
+  # Reconstruct path by working backwards from target
   if path_found:
       node = goal_index
       shortest_path.append(goal_index)
       while node != start_index:
-          node = parents[node]
           shortest_path.append(node)
+          node = parents[node]
   # reverse list
   shortest_path = shortest_path[::-1]
   rospy.loginfo('A-Star: Done reconstructing path')
 
-  # print statistics
-  rospy.loginfo('++++++++ A-Star execution metrics ++++++++')
-  rospy.loginfo('Total nodes expanded: %s', str(len(closed_nodes)))
-  rospy.loginfo('Nodes in frontier: %s', str(len(open_list)))
-  rospy.loginfo('Unvisited nodes (this includes obstacles): %s', str((height * width)-len(closed_nodes)-len(open_list))) # note: this number includes obstacles
 
   return shortest_path
 
-# Creates service 'make_plan', service requests are passed to the make_plan callback function
 make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
-
 rospy.spin()

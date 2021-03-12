@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 """
-ROS service server for Greedy Best-First-Search path planning exercise
+Greedy Best-First Search path planning algorithm exercise
 Author: Roberto Zegers R.
 Copyright: Copyright (c) 2020, Roberto Zegers R.
 License: BSD-3-Clause
@@ -11,52 +11,95 @@ Usage: roslaunch unit3_pp unit3_gbfs_exercise.launch
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
-import math
+from gridviz import GridViz
 
 rospy.init_node('gbfs_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
-def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
+def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
   """
-  Identifies neighbor nodes in free space and inside the map boundaries
-  Returns a main list with neighbour nodes as [index, step_cost] pairs (sublists)
-  orthogonal_movement_cost: the cost of moving to an adjacent grid cell, the size/edge of one grid cell
+  Identifies neighbor nodes inspecting the 8 adjacent neighbors
+  Checks if neighbor is inside the map boundaries and if is not an obstacle according to a threshold
+  Returns a list with valid neighbour nodes as [index, step_cost] pairs
   """
-  # temporary list
-  check = []
-  # output list
   neighbors = []
+  # length of diagonal = length of one side by the square root of 2 (1.41421)
+  diagonal_step_cost = orthogonal_step_cost * 1.41421
+  # threshold value used to reject neighbor nodes as they are considered as obstacles [1-254]
+  lethal_cost = 1
 
-  # check that upper neighbour is not past the map's boundaries
-  if index - width > 0:
-    # append [index, step_cost] pair
-    check.append([index - width, orthogonal_movement_cost])
+  upper = index - width
+  if upper > 0:
+    if costmap[upper] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[upper]/255
+      neighbors.append([upper, step_cost])
 
-  # check that left neighbour is not past the map's boundaries
-  if (index - 1) % width > 0:
-    check.append([index - 1, orthogonal_movement_cost])
+  left = index - 1
+  if left % width > 0:
+    if costmap[left] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[left]/255
+      neighbors.append([left, step_cost])
 
-  # check that right neighbour is not past the map's boundaries
-  if (index + 1) % width != (width + 1):
-    check.append([index + 1, orthogonal_movement_cost])
+  upper_left = index - width - 1
+  if upper_left > 0 and upper_left % width > 0:
+    if costmap[upper_left] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[upper_left]/255
+      neighbors.append([index - width - 1, step_cost])
 
-  # check that lower neighbour is not past the map's boundaries
-  if (index + width) <= (height * width):
-    check.append([index + width, orthogonal_movement_cost])
+  upper_right = index - width + 1
+  if upper_right > 0 and (upper_right) % width != (width - 1):
+    if costmap[upper_right] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[upper_right]/255
+      neighbors.append([upper_right, step_cost])
 
-  for element in check:
-     # Check if neighbour node is an obstacle
-    if costmap[element[0]] == 0:
-      # appends [index, step_cost] sublist to output list
-      neighbors.append(element)
+  right = index + 1
+  if right % width != (width + 1):
+    if costmap[right] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[right]/255
+      neighbors.append([right, step_cost])
+
+  lower_left = index + width - 1
+  if lower_left < height * width and lower_left % width != 0:
+    if costmap[lower_left] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[lower_left]/255
+      neighbors.append([lower_left, step_cost])
+
+  lower = index + width
+  if lower <= height * width:
+    if costmap[lower] < lethal_cost:
+      step_cost = orthogonal_step_cost + costmap[lower]/255
+      neighbors.append([lower, step_cost])
+
+  lower_right = index + width + 1
+  if (lower_right) <= height * width and lower_right % width != (width - 1):
+    if costmap[lower_right] < lethal_cost:
+      step_cost = diagonal_step_cost + costmap[lower_right]/255
+      neighbors.append([lower_right, step_cost])
 
   return neighbors
 
+def indexToWorld(flatmap_index, map_width, map_resolution, map_origin = [0,0]):
+    """
+    Converts a flatmap index value to world coordinates (meters)
+    flatmap_index: a linear index value, specifying a cell/pixel in an 1-D array
+    map_width: number of columns in the occupancy grid
+    map_resolution: side lenght of each grid map cell in meters
+    map_origin: the x,y position in grid cell coordinates of the world's coordinate origin
+    Returns a list containing x,y coordinates in the world frame of reference
+    """
+    # convert to x,y grid cell/pixel coordinates
+    grid_cell_map_x = flatmap_index % map_width
+    grid_cell_map_y = flatmap_index // map_width
+    # convert to world coordinates
+    x = map_resolution * grid_cell_map_x + map_origin[0]
+    y = map_resolution * grid_cell_map_y + map_origin[1]
+
+    return [x,y]
 
 def make_plan(req):
   ''' 
   Callback function used by the service server to process
   requests from clients. It returns a msg of type PathPlanningPluginResponse
-  '''
+  ''' 
   # costmap as 1-D array representation
   costmap = req.costmap_ros
   # number of columns in the occupancy grid
@@ -65,83 +108,92 @@ def make_plan(req):
   height = req.height
   start_index = req.start
   goal_index = req.goal
-  # To-Do: replace numerical constants preferably with parameters / static_map srv
   # side of each grid map square in meters
   resolution = 0.2
   # origin of grid map (bottom left pixel) w.r.t. world coordinates (Rviz's origin)
   origin = [-7.4, -7.4, 0]
 
+  viz = GridViz(costmap, resolution, origin, start_index, goal_index, width)
+
   # time statistics
   start_time = rospy.Time.now()
 
-  # Find a path using Greedy Best-First-Search
-  path = gbfs(start_index, goal_index, width, height, costmap, resolution, origin)
+  # calculate the shortes path using Greedy Best-First Search
+  path = greedy_bfs(start_index, goal_index, width, height, costmap, resolution, origin, viz)
 
   if not path:
-    rospy.logwarn("No path returned by Greedy Best-First-Search")
+    rospy.logwarn("No path returned by Greedy Best-First Search")
     path = []
   else:
-    # print time statistics
     execution_time = rospy.Time.now() - start_time
+    print("\n")
+    rospy.loginfo('+++++++ Greedy BFS execution metrics +++++++')
     rospy.loginfo('Total execution time: %s seconds', str(execution_time.to_sec()))
     rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
+    print("\n")
 
-  # make a response object
   resp = PathPlanningPluginResponse()
   resp.plan = path
   return resp
 
-def gbfs(start_index, goal_index, width, height, costmap, resolution, origin):
+def greedy_bfs(start_index, goal_index, width, height, costmap, resolution, origin, grid_viz):
   ''' 
-  Performs Greedy Best-First-Search on a costmap with a given start and goal node
+  Performs Greedy Best-First Search on a costmap with a given start and goal node
   '''
 
   # create an open_list
   open_list = []
-  open_list.append([start_index, 0])
 
   # set to hold already processed nodes
-  closed_nodes = set()
+  closed_list = set()
 
   # dict for mapping children to parent
   parents = dict()
 
   # dict for mapping g costs (travel costs) to nodes
   g_costs = dict()
+
+  # set the start's node g_cost
   g_costs[start_index] = 0
+
+  # add start node to open list
+  open_list.append([start_index, 0])
 
   shortest_path = []
 
   path_found = False
-  rospy.loginfo('GBFS: Done with initialization')
+  rospy.loginfo('Dijkstra: Done with initialization')
 
-  # Main loop, executes while there are still nodes in open_list
+  # Main loop, executes as long as there are still nodes inside open_list
   while open_list:
 
-    # sort open_list according to the second element of each sublist
+    # sort open_list according to the lowest 'g_cost' value (second element of each sublist)
     open_list.sort(key = lambda x: x[1]) 
-    # extract the first element (the one with the shortes travel cost)
+    # extract the first element (the one with the lowest 'g_cost' value)
     current_node = open_list.pop(0)[0]
 
     # Close current_node to prevent from visting it again
-    closed_nodes.add(current_node)
+    closed_list.add(current_node)
 
-    # If current_node is the goal, exit the search loop
+    # Optional: visualize closed nodes
+    grid_viz.set_color(current_node,"pale yellow")
+
+    # If current_node is the goal, exit the main loop
     if current_node == goal_index:
       path_found = True
       break
 
-    # Get neighbors
+    # Get neighbors of current_node
     neighbors = find_neighbors(current_node, width, height, costmap, resolution)
 
     # Loop neighbors
     for neighbor_index, step_cost in neighbors:
 
       # Check if the neighbor has already been visited
-      if neighbor_index in closed_nodes:
+      if neighbor_index in closed_list:
         continue
 
-      # calculate g_cost of neighbour if movement passes through current_node
+      # calculate g_cost of neighbour considering it is reached through current_node
       g_cost = g_costs[current_node] + step_cost
 
       # Check if the neighbor is in open_list
@@ -168,28 +220,26 @@ def gbfs(start_index, goal_index, width, height, costmap, resolution, origin):
         # Add neighbor to open_list
         open_list.append([neighbor_index, g_cost])
 
-  rospy.loginfo('GBFS: Done traversing nodes in open_list')
+        # Optional: visualize frontier
+        grid_viz.set_color(neighbor_index,'orange')
+
+  rospy.loginfo('Greedy BFS: Done traversing nodes in open_list')
 
   if not path_found:
-    rospy.logwarn('GBFS: No path found!')
+    rospy.logwarn('Greedy BFS: No path found!')
     return shortest_path
 
-  ## Build path by working backwards from target
+  # Reconstruct path by working backwards from target
   if path_found:
       node = goal_index
       shortest_path.append(goal_index)
       while node != start_index:
-          node = parents[node]
           shortest_path.append(node)
+          # get next node
+          node = parents[node]
   # reverse list
   shortest_path = shortest_path[::-1]
-  rospy.loginfo('GBFS: Done reconstructing path')
-
-  # print statistics
-  rospy.loginfo('++++++++ GBFS execution metrics ++++++++')
-  rospy.loginfo('Total nodes expanded: %s', str(len(closed_nodes)))
-  rospy.loginfo('Nodes in frontier: %s', str(len(open_list)))
-  rospy.loginfo('Unvisited nodes (this includes obstacles): %s', str((height * width)-len(closed_nodes)-len(open_list))) # note: this number includes obstacles
+  rospy.loginfo('Greedy BFS: Done reconstructing path')
 
   return shortest_path
 
