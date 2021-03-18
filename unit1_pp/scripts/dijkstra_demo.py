@@ -9,10 +9,8 @@ Usage: roslaunch unit1_pp dijkstra_demo.launch
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
+from geometry_msgs.msg import Twist
 from openlist import OpenList
-import math
-
-rospy.init_node('path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
 def find_neighbors(index, width, height, costmap, orthogonal_movement_cost):
 
@@ -62,8 +60,12 @@ def make_plan(req):
     path = []
   else:
     execution_time = rospy.Time.now() - start_time
+    print("\n")
+    rospy.loginfo('++++++++ Dijkstra execution metrics ++++++++')
     rospy.loginfo('Total execution time: %s seconds', str(execution_time.to_sec()))
     rospy.loginfo('++++++++++++++++++++++++++++++++++++++++++++')
+    print("\n")
+    rospy.loginfo('Dijkstra: Path sent to navigation stack')
 
   resp = PathPlanningPluginResponse()
   resp.plan = path
@@ -126,14 +128,19 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
           path.append(node)
 
   path = path[::-1]
-  rospy.loginfo('Dijkstra: Done reconstructing path')
-  rospy.loginfo('+++++++++ Dijkstra execution metrics +++++++++')
-  rospy.loginfo('Total nodes expanded: %s', str(len(closed_nodes)))
-  rospy.loginfo('Nodes in frontier: %s', str(open_list.size()))
-  rospy.loginfo('Unvisited nodes (this includes obstacles): %s', str((height * width)-len(closed_nodes)-open_list.size()))
 
   return path
 
-make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+def clean_shutdown():
+  cmd_vel.publish(Twist())
+  rospy.sleep(1)
 
-rospy.spin()
+if __name__ == '__main__':
+  rospy.init_node('dijkstra_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+  make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+  cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
+  rospy.on_shutdown(clean_shutdown)
+
+  while not rospy.core.is_shutdown():
+    rospy.rostime.wallsleep(0.5)
+  rospy.Timer(rospy.Duration(2), rospy.signal_shutdown('Shutting down'), oneshot=True)
