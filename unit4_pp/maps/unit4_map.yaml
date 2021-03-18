@@ -1,4 +1,4 @@
-image: test_world.pgm
+image: unit4_map.pgm
 resolution: 0.100000
 origin: [-20.000000, -20.000000, 0.000000]
 negate: 0
