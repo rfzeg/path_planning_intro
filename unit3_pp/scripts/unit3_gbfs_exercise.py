@@ -11,9 +11,8 @@ Usage: roslaunch unit3_pp unit3_gbfs_exercise.launch
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
+from geometry_msgs.msg import Twist
 from gridviz import GridViz
-
-rospy.init_node('gbfs_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
 def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
   """
@@ -243,7 +242,17 @@ def greedy_bfs(start_index, goal_index, width, height, costmap, resolution, orig
 
   return shortest_path
 
-# Creates service 'make_plan', service requests are passed to the make_plan callback function
-make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+def clean_shutdown():
+  cmd_vel.publish(Twist())
+  rospy.sleep(1)
+  
+if __name__ == '__main__':
+  rospy.init_node('gbfs_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+  make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+  cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
+  rospy.on_shutdown(clean_shutdown)
 
-rospy.spin()
+  while not rospy.core.is_shutdown():
+    rospy.rostime.wallsleep(0.5)
+  rospy.Timer(rospy.Duration(2), rospy.signal_shutdown('Shutting down'), oneshot=True)
+

@@ -11,9 +11,8 @@ Usage: roslaunch unit2_pp unit2_solution.launch
 
 import rospy
 from pp_msgs.srv import PathPlanningPlugin, PathPlanningPluginResponse
+from geometry_msgs.msg import Twist
 from gridviz import GridViz
-
-rospy.init_node('dijkstra_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
 
 def find_neighbors(index, width, height, costmap, orthogonal_step_cost):
   """
@@ -226,7 +225,16 @@ def dijkstra(start_index, goal_index, width, height, costmap, resolution, origin
 
   return shortest_path
 
-# Creates service 'make_plan', service requests are passed to the make_plan callback function
-make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+def clean_shutdown():
+  cmd_vel.publish(Twist())
+  rospy.sleep(1)
 
-rospy.spin()
+if __name__ == '__main__':
+  rospy.init_node('dijkstra_path_planning_service_server', log_level=rospy.INFO, anonymous=False)
+  make_plan_service = rospy.Service("/move_base/SrvClientPlugin/make_plan", PathPlanningPlugin, make_plan)
+  cmd_vel = rospy.Publisher('/cmd_vel', Twist, queue_size=5)
+  rospy.on_shutdown(clean_shutdown)
+
+  while not rospy.core.is_shutdown():
+    rospy.rostime.wallsleep(0.5)
+  rospy.Timer(rospy.Duration(2), rospy.signal_shutdown('Shutting down'), oneshot=True)
