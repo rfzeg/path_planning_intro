@@ -17,6 +17,6 @@
   <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
 
   <!-- Start service server that responds with a plan for global path planning -->
-  <node pkg="unit3_pp" name="a_star_solution" type="unit3_astar_solution.py" output="screen"/> 
+  <node pkg="unit3_pp" name="a_star_solution" type="unit3_astar_solution_server.py" output="screen"/> 
 
 </launch>

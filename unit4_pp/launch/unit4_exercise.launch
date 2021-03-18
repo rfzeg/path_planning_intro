@@ -17,6 +17,6 @@
   <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
 
   <!-- Start service server that responds with a plan for global path planning   unit5_exercise_solution_markers_v2.py -->
-  <node pkg="unit4_pp" name="RRT_exercise" type="unit4_exercise.py" output="screen"/> 
+  <node pkg="unit4_pp" name="RRT_exercise" type="unit4_exercise_server.py" output="screen"/> 
 
 </launch>

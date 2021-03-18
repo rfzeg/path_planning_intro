@@ -17,6 +17,6 @@
   <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
 
   <!-- Start service server that responds with a plan for global path planning -->
-  <node pkg="unit3_pp" name="gbfs_exercise" type="unit3_gbfs_exercise.py" output="screen"/> 
+  <node pkg="unit3_pp" name="gbfs_exercise" type="unit3_gbfs_exercise_server.py" output="screen"/> 
 
 </launch>
