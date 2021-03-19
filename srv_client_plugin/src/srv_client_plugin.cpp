@@ -58,6 +58,8 @@ namespace srv_client_plugin
     bool SrvClientPlugin::makePlan(const geometry_msgs::PoseStamped &start, const geometry_msgs::PoseStamped &goal, std::vector<geometry_msgs::PoseStamped> &plan)
     {
       plan.clear();
+      // clear previously published path in Rviz
+      publishPlan(plan);
 
       // Fill costmap (costmap is a 1-D array map representation)
       std::vector<int> costmap(map_size_);
@@ -168,7 +170,6 @@ namespace srv_client_plugin
       {
         gui_path.poses[i] = path[i];
       }
-
       plan_pub_.publish(gui_path);
     }
 
