@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <arg name="url" default="package://unit6_pp/data/berlin_zoo_isolated.osm" />
+
+  <node pkg="osm_cartography" type="osm_server" name="osm_server" output="screen"/>
+
+  <node pkg="osm_cartography" type="viz_osm" name="viz_osm" output="screen">
+    <param name="map_url" value="$(arg url)" />
+  </node>
+
+  <node pkg="unit6_pp" name="static_transform_map_local_map" type="static_transform.py" output="screen"/>
+
+  <arg name="rvizconfig" default="$(find unit6_pp)/rviz/unit6_pp.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+  <node pkg="route_network" type="route_network" name="route_network" output="screen">
+      <param name="map_url" value="$(arg url)" />
+  </node>
+
+  <node pkg="route_network" type="plan_route" name="plan_route" output="screen"/>
+
+  <node pkg="route_network" type="rviz_goal" name="rviz_goal" />
+
+  <node name="pose" pkg="rostopic" type="rostopic" args="pub /fix sensor_msgs/NavSatFix '{latitude: 52.50798, longitude: 13.33841}' -1"/>
+
+  <node pkg="tf2_ros" type="static_transform_publisher" name="tf_world_map" args="0 0 0 0 0 0 world map" />
+
+</launch>
