@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- High level launch file for Unit 5 Exercise -->
+<!-- Requires simulation w/robot running -->
+<launch>
+
+  <!-- Run the map server to load a pre-made map -->
+  <arg name="map_file" default="$(find unit5_pp)/maps/map_unit5_74x74x20cm.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- MOVE_BASE -->
+  <include file="$(find unit5_pp)/launch/move_base.launch" />
+
+  <!-- Determine whether to run Rviz or not & set Rviz config file-->
+  <arg name="use_rviz" default="true" />
+  <arg name="rvizconfig" default="$(find unit5_pp)/rviz/unit5_exercise.rviz"/>
+  <node if="$(arg use_rviz)" name="rviz" pkg="rviz" type="rviz" respawn="false" args="-d $(arg rvizconfig)"/>
+
+  <node pkg="unit5_pp" name="unit5_exercise" type="unit5_exercise.py" output="screen"/>
+
+  <arg name="topic_attractive_field" default="/attractive_field" />
+  <node pkg="unit5_pp" name="occ_to_gridmap_attractive" type="costmap_to_gridmap" output="screen">
+  <remap from="/input_topic/costmap" to="$(arg topic_attractive_field)" />
+  </node>
+
+</launch>

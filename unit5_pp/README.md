@@ -7,6 +7,7 @@ License: BSD-3-Clause
 ## Description
 
 The unit5_pp package, for the path planning course.  
+Implements the Artificial Potential Fields method.  
 
 
 

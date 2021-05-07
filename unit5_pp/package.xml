@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>unit5_pp</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>The unit5_pp package</description>
 
   <author>Roberto Zegers</author>
@@ -41,6 +41,14 @@
   <exec_depend>pp_msgs</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>visualization_msgs</exec_depend>
+  <depend>geometry_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>grid_map_core</depend>
+  <depend>grid_map_ros</depend>
+  <depend>grid_map_loader</depend>
+  <depend>grid_map_msgs</depend>
+  <depend>grid_map_rviz_plugin</depend>
+  <depend>grid_map_visualization</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
