@@ -22,4 +22,15 @@
   <remap from="/input_topic/costmap" to="$(arg topic_attractive_field)" />
   </node>
 
+  <arg name="topic_repulsive_field" default="/repulsive_field" />
+  <node pkg="unit5_pp" name="occ_to_gridmap_repulsive" type="costmap_to_gridmap" output="screen">
+  <remap from="/input_topic/costmap" to="$(arg topic_repulsive_field)" />
+  </node>
+
+  <arg name="topic_total_field" default="/total_field" />
+  <node pkg="unit5_pp" name="occ_to_gridmap_total" type="costmap_to_gridmap" output="screen">
+  <remap from="/input_topic/costmap" to="$(arg topic_total_field)" />
+  </node>
+
+
 </launch>

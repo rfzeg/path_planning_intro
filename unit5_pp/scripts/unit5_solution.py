@@ -15,14 +15,14 @@ import copy
 import random
 
 
-def random_force(K = 1.0):
+def random_attractive_potential(K = 1.0):
     """
     Toy function that calculates a random force for one grid cell
     returns: a random force value scaled by the constant K
     """
     return K * random.uniform(0, 100)
 
-def conical_attractive_force(current_cell, goal_cell, K = 0.05):
+def conical_attractive_potential(current_cell, goal_cell, K = 0.05):
     """
     Calculates the linear attractive force for one grid cell with respect to the target
     current_cell: a list containing x and y values of one map grid cell
@@ -35,7 +35,7 @@ def conical_attractive_force(current_cell, goal_cell, K = 0.05):
     distance = (dx ** 2 + dy ** 2)**0.5
     return K * distance
 
-def quadratic_attractive_force(current_cell, goal_cell, K = 0.05):
+def quadratic_attractive_potential(current_cell, goal_cell, K = 0.05):
     """
     Calculates the quadratic attractive force for one grid cell with respect to the target
     current_cell: a list containing x and y values of one map grid cell
@@ -57,25 +57,21 @@ def rescale_to_max_value( max_value, input_list):
     return input_list_rescaled
 
 def populate_attractive_field(height, width, goal_xy):
-    """ 
-    Creates an attractive field
-    returns: 1D flat grid map
-    """
     field = [0] * height * width
     for row in range(height):
       for col in range(width):
-        force_value = random_force()
-        # force_value = conical_attractive_force([row, col], goal_xy)
-        # force_value = quadratic_attractive_force([row, col], goal_xy)
+        #force_value = random_attractive_potential()
+        #force_value = conical_attractive_potential([row, col], goal_xy)
+        force_value = quadratic_attractive_potential([row, col], goal_xy)
+
         # Assign to potential field
         field[row + width * col] = force_value
     # Rescale into a target range of [0-100]
     return rescale_to_max_value(100, field)
 
-def costmap_callback(msg):
+def callback(msg):
     global attractive_field, repulsive_field, total_field
     attractive_field = copy.deepcopy(msg)
-    attractive_field.data = [0] * attractive_field.info.height * attractive_field.info.width
     repulsive_field = msg
     repulsive_field.data = list(repulsive_field.data)
     total_field = copy.deepcopy(msg)
@@ -124,7 +120,7 @@ if __name__ == '__main__':
         repulsive_field_publisher = rospy.Publisher("repulsive_field", OccupancyGrid, queue_size=10)
         attractive_field_publisher = rospy.Publisher("attractive_field", OccupancyGrid, queue_size=10)
         total_field_publisher = rospy.Publisher("total_field", OccupancyGrid, queue_size=10)
-        costmap_subscriber = rospy.Subscriber("/move_base/global_costmap/costmap", OccupancyGrid, costmap_callback)
+        costmap_subscriber = rospy.Subscriber("/move_base/global_costmap/costmap", OccupancyGrid, callback)
         goal_subscriber = rospy.Subscriber("move_base_simple/goal", PoseStamped, new_goal_callback)
 
         attractive_field = OccupancyGrid()
