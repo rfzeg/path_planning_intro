@@ -65,8 +65,6 @@ def populate_attractive_field(height, width, goal_xy):
     for row in range(height):
       for col in range(width):
         force_value = random_force()
-        # force_value = conical_attractive_force([row, col], goal_xy)
-        # force_value = quadratic_attractive_force([row, col], goal_xy)
         # Assign to potential field
         field[row + width * col] = force_value
     # Rescale into a target range of [0-100]

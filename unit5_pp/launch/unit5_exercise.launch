@@ -12,6 +12,7 @@
      <include file="$(find unit5_pp)/launch/move_base.launch">
         <arg name="start_pp_plugin" value="true" />
      </include>
+
      <node pkg="unit5_pp" name="unit5_gradient_descent_server" type="unit5_pp_server.py" output="screen" required="true"/>
   </group>
 
