@@ -92,12 +92,11 @@ class Edge():
 class Planner():
     """
     :class:`Planner` plans a route through a RouteNetwork.
-
     :param graph: `geographic_msgs/RouteNetwork`_ message.
     """
     def __init__(self, graph):
         """Constructor.
-
+        
         Collects relevant information from route network message,
         providing convenient access to the data.
         """
@@ -238,10 +237,13 @@ class Planner():
         # Dijkstra shortest path algorithm
 
         # create an open list
+        # Important:
+        # add nodes to open_list as [distance, index] pairs
+        # where the first element is travel costs to the node
+        # and the second element is the node's index
         open_list = []
 
         # add start node to open list as an [distance, index] pair
-        # keeps travel costs to each node and the node's index
         open_list.append([0, start_idx])
 
         # boolean list used to check for closed nodes
@@ -249,7 +251,10 @@ class Planner():
         closed_list[start_idx] = True
 
         # dict for mapping children to parent nodes
-        # value is a [current_node, current_edge] pair
+        # Important:
+        # dictionary key is current_neighbour_node
+        # first element in value is current_node
+        # second element is valie is the edge connecting both nodes
         parents = dict()
 
         # boolean flag indicating whether the goal was reached or not
